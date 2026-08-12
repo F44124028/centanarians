@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>不曾閒過的一雙手</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700;900&family=Noto+Sans+TC:wght@300;400;500&display=swap');
+
+  :root{
+    --paper:      #E9E1CC;
+    --paper-deep: #DED2AF;
+    --ink:        #2A2620;
+    --ink-soft:   #5A5344;
+    --sea:        #3E5C56;
+    --sea-deep:   #2C433E;
+    --rope:       #A0703F;
+    --line:       #8C8264;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html,body{
+    height:100%;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Serif TC', serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body{
+    overflow:hidden;
+  }
+
+  #scroller{
+    height:100dvh;
+    height:100vh;
+    overflow-y:scroll;
+    scroll-snap-type:y mandatory;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  #scroller::-webkit-scrollbar{ display:none; }
+
+  section{
+    position:relative;
+    min-height:100dvh;
+    min-height:100vh;
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+    display:flex;
+    flex-direction:column;
+    padding:0 26px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  /* ---------- background texture ---------- */
+  section::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(ellipse at 15% 8%, rgba(160,112,63,0.07), transparent 55%),
+      radial-gradient(ellipse at 85% 95%, rgba(62,92,86,0.09), transparent 55%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  section > *{ position:relative; z-index:1; }
+
+  /* ---------- title page ---------- */
+  #title{
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    background:var(--sea-deep);
+    color:var(--paper);
+  }
+  #title::before{ background:none; }
+
+  .place{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    font-size:13px;
+    letter-spacing:0.5em;
+    color:rgba(233,225,204,0.65);
+    margin-bottom:28px;
+  }
+
+  .main-title{
+    font-weight:900;
+    font-size:clamp(34px, 10vw, 52px);
+    line-height:1.5;
+    letter-spacing:0.06em;
+    writing-mode: horizontal-tb;
+  }
+
+  .title-rule{
+    width:36px;
+    height:1px;
+    background:var(--rope);
+    margin:30px auto;
+  }
+
+  .subtitle{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    font-size:15px;
+    color:rgba(233,225,204,0.8);
+    letter-spacing:0.15em;
+  }
+
+  .swipe-hint{
+    margin-top:70px;
+    font-family:'Noto Sans TC', sans-serif;
+    font-size:12px;
+    font-weight:300;
+    letter-spacing:0.3em;
+    color:rgba(233,225,204,0.55);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+  .chev{
+    width:9px; height:9px;
+    border-right:1px solid rgba(233,225,204,0.55);
+    border-bottom:1px solid rgba(233,225,204,0.55);
+    transform:rotate(45deg);
+    animation:bob 2.2s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{ transform:rotate(45deg) translate(0,0); opacity:0.4; }
+    50%{ transform:rotate(45deg) translate(4px,4px); opacity:0.9; }
+  }
+
+  /* ---------- content pages ---------- */
+  .tide{
+    width:100%;
+    max-width:600px;
+    height:10px;
+    margin-top:16vh;
+    margin-bottom:20px;
+    opacity:0;
+    transition:opacity 0.8s ease 0.1s;
+  }
+  .tide path{ stroke:var(--line); stroke-width:1; fill:none; opacity:0.55; }
+
+  p.para{
+    max-width:600px;
+    font-size:clamp(16.5px, 4.6vw, 19px);
+    line-height:2.05;
+    letter-spacing:0.045em;
+    color:var(--ink);
+    text-align:justify;
+    padding-bottom:16vh;
+    opacity:0;
+    transform:translateY(14px);
+    transition:opacity 0.85s ease, transform 0.85s ease;
+  }
+
+  section.in-view .tide,
+  section.in-view p.para{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  section:nth-of-type(odd):not(#title){ background:var(--paper); }
+  section:nth-of-type(even):not(#title){ background:var(--paper-deep); }
+
+  /* ---------- side progress dots ---------- */
+  #dots{
+    position:fixed;
+    right:12px;
+    top:50%;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    z-index:20;
+  }
+  #dots button{
+    width:5px; height:5px;
+    border-radius:50%;
+    border:none;
+    background:var(--line);
+    opacity:0.4;
+    padding:0;
+    cursor:pointer;
+    transition:opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+  }
+  #dots button.active{
+    opacity:1;
+    background:var(--sea);
+    transform:scale(1.6);
+  }
+
+  /* ---------- clock-hand progress ---------- */
+  #clock{
+    position:fixed;
+    left:50%;
+    bottom:16px;
+    transform:translateX(-50%);
+    z-index:20;
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:rgba(42,38,32,0.06);
+    backdrop-filter:blur(2px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #clock svg{ width:100%; height:100%; }
+  #clock circle.face{
+    fill:none;
+    stroke:var(--line);
+    stroke-width:1;
+    opacity:0.5;
+  }
+  #clock line.hand{
+    stroke:var(--rope);
+    stroke-width:1.6;
+    stroke-linecap:round;
+    transform-origin:19px 19px;
+    transition:transform 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  #clock circle.hub{ fill:var(--rope); }
+
+  #title ~ #clock, #title ~ #dots{}
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+    .tide, p.para{ opacity:1 !important; transform:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="scroller">
+
+  <section id="title">
+    <div class="place">台 東 ‧ 卑 南</div>
+    <h1 class="main-title">不曾閒過的<br>一雙手</h1>
+    <div class="title-rule"></div>
+    <p class="subtitle">江乾，一百歲</p>
+    <div class="swipe-hint">上滑閱讀<span class="chev"></span></div>
+  </section>
+
+  <section data-label="日常">
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">清晨五六點，天色都還沒有亮透，在台東卑南民宅內的江乾就醒了。女兒買回早餐，看著他把藥吃下，七點五十分，長照人員準時到，帶他出門散步。九點多回來，補一場眠。中午吃過飯後，再睡一回，直到兩點多起身。夏天就坐在屋外，冬天在室內烤著柴火，和女兒有一搭沒一搭地聊天。三點到五點，長照人員再度來陪他。晚上七點多洗過澡，這一天，就這樣悄悄闔上了。宛如時鐘內的指針，繞了一圈又一圈，從來沒有停歇的生活，江乾已過了一百年。</p>
+  </section>
+
+  <section data-label="起伏">
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">年輕時，這樣不斷重複的生活，不像如今平穩，而是充滿了勞動與奔波。</p>
+  </section>
+
+  <section data-label="身世">
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">江乾是閩南人，在台語的世界裡長大，一輩子不諳國語。民國十五年，江乾生於恆春大光里，那是一個靠海的小漁村。在他六歲那年，跟著大人坐上了一艘從台南載鹽、糖等民生物資去台東的貨輪。那個年代，台東還沒有像樣的漁港，來往全靠這些兼載旅客的貨船。一家人此去並非為了什麼美好的憧憬，而是為了躲債。由於江乾的父親好賭，欠了一屁股債，使得全家只能連夜離鄉，把恆春的海口，遠遠拋在船尾。</p>
+  </section>
+
+  <section data-label="遷居">
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">搬家，是江乾早年人生中不斷重複的場景。三元、都蘭，一路輾轉，哪裡討生活容易些，就往哪裡去；哪裡看對了眼，就在哪裡落腳。搬一次家，就得重新砍一次竹子來蓋房子。既沒有工班，也沒有磚瓦，全憑一雙手，從空無一物，蓋出一個可以遮風擋雨的家。那時的台東，在江乾記憶裡「只有原住民」，是一片尚待墾殖的荒野。</p>
+  </section>
+
+  <section data-label="手足">
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">江乾家中兄弟姊妹原有三男一女，他是老大。江乾從小吃飽了就出去做工，回家還要帶弟妹，沒有閒暇識字讀經。母親去世得早，那年他的小妹才十二歲，稚嫩的肩膀，一夕之間扛起了一家人的三餐、洗衣、縫補。這件事，江乾記了數十年，如今談起，語氣裡仍是化不開的心疼。</p>
+  </section>
+
+  <section data-label="耕作">
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">兒女還小的時候，江乾一家住在三元山上。女兒印象中，三元山上的那塊田並沒有特別優待他們。一家人在那裡曾經種植了花生、玉米、地瓜，但經常有雨水不足的情況，一整季的辛苦化成了枯黃的葉子。後來實在難以維生，那塊田終究是賣了，舉家搬遷下山。卑南大圳開通前，江乾沿著溪邊耕作。一直到卑南大圳開通，才算真正有了穩定的水源，不必再看老天爺的臉色。</p>
+  </section>
+
+  <section data-label="討海">
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">江乾的勞動生活有山也有海。搬來卑南後，他也曾在定置漁場工作，和親戚在近海用竹筏捕魚、出海口撈魚苗。而在他所有的勞動記憶裡，最鮮活的無疑是牽罟。因為只要參與了就人人有份，全村大大小小都會出動，一網下去，大魚小魚都有，那是屬於整個村莊的豐收。江乾回想起來覺得，以前的魚比現在多得多，那時的牽罟比較有趣。</p>
+  </section>
+
+  <section data-label="做工">
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">在江乾壯年，甚至直到老年的歲月裡，工作幾乎不曾停止，只要有人一聲招呼，他從沒推辭過。村裡人都愛找他做工，因為他做事認真，不偷懶，也不多話。這樣的勞動，一路做到他八十六歲那年。某次工作完，他全身熱得通紅，女兒看了心疼不已，這才託人以後別再找他做工了。也正是在這些年的工作環境裡，日語的字句斷斷續續飄進他耳朵，聽多了，竟也懂了幾分。晚年看電視，他偏愛日本台的摔角與武士劇，看得津津有味；換成國語節目，他反倒聽不太懂。</p>
+  </section>
+
+  <section data-label="扶養">
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">一輩子的勞動，也成了他養家、照顧家人的方式。</p>
+  </section>
+
+  <section data-label="傳承">
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">江乾因工作忙碌而沒有太多的心力照料兒女，但兒女都能理解他的辛勞與付出。在女兒眼裡，江乾是「靠著一雙手把大家養大」。在江乾夫妻倆的拉拔之下，兒子們分別學了汽車鈑金、做板模等技能，各憑一雙手謀生，像極了父親當年那雙在田裡、海裡都不曾閒過的手。</p>
+  </section>
+
+  <section data-label="婚姻">
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">而他的婚姻和那時的大多數人別無兩樣，經由他人的介紹娶了妻子。儘管他說：「都是大人決定的」，但這不影響感情的深刻。妻子個性較強勢，比較會唸叨，他卻從來不會回嘴，也不會計較什麼，只是偶而不高興時選擇沉默。妻子晚年罹患糖尿病，纏綿病榻十餘年，全是江乾一人照料，日復一日，直到妻子六十九歲那年過世。</p>
+  </section>
+
+  <section data-label="遠行">
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">妻子離世後，這樣一輩子為家庭奔忙的生活，也出現了少有的停頓。有人邀他跟團出國旅遊，走訪了泰國、馬來西亞、印尼、小琉球等地。那個窮怕了、菜快壞了還捨不得丟的人，在馬來西亞嘗著個頭不大卻甜得出奇的鳳梨，會想起這個時節台灣的鳳梨還未開花。他也在陌生海岸邊，看著那些不知名的孩子笑鬧著戲水。小琉球留給他的印象簡單得多，「看日本人」。這幾趟旅程，是江乾百年人生裡，少數幾次不為了生存而挪動的腳步。</p>
+  </section>
+
+  <section data-label="同住">
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">近十多年來，女兒和女婿搬回與江乾同住。女兒說，起初他的話極少，一天甚至講不到兩句。後來與女兒、女婿同住久了，才漸漸打開話匣子，開始談起從前的事。如今已不需要工作的江乾，不喜歡整日躺著，做水電的女兒、女婿會找些輕活給他做，比如拆舊電線取銅，讓他手上有事情忙。長照人員沒有來的日子，也會帶著江乾一同前往工作的地方，備妥助行器，讓他在附近走走逛逛。女兒曾經帶他回恆春，看看兒時的老家。令人意外的是，他竟然都還認得。不只如此，女兒帶他出去時，儘管是沒去過的地方，他竟都知道在哪裡。</p>
+  </section>
+
+  <section data-label="福氣">
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">「他是很有福氣的人，待人很好。」排行第六、如今是主要照顧者的女兒江月裡，這樣描述自己的父親，也說老人家沒有帶來什麼困擾，是子女的福氣。江乾只要一天沒看見女兒就會念叨，怕自己被丟下。那個曾經一天講不到兩句話的沉默男人，如今偶爾也會流露出這樣近乎依戀的神情，晚年的他，似乎也漸漸習慣了有人陪伴、有人惦記。</p>
+  </section>
+
+  <section data-label="如今">
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para" style="padding-bottom:22vh;">過往，江乾的日子，是做工、收工、再做工，日頭起落之間，雙腳沾滿泥土的濕與海水的鹹。如今，重複並沒有消失，只是換了一副樣貌，變得柔和許多。在女兒的陪伴下，他每天會騎上一輛三輪車繞一繞村莊，就像年輕時那樣，一天一天把日子走下去。</p>
+  </section>
+
+</div>
+
+<div id="dots"></div>
+
+<div id="clock" aria-hidden="true">
+  <svg viewBox="0 0 38 38">
+    <circle class="face" cx="19" cy="19" r="15"></circle>
+    <line class="hand" id="hand" x1="19" y1="19" x2="19" y2="7"></line>
+    <circle class="hub" cx="19" cy="19" r="1.6"></circle>
+  </svg>
+</div>
+
+<script>
+  const sections = Array.from(document.querySelectorAll('section'));
+  const dotsContainer = document.getElementById('dots');
+  const hand = document.getElementById('hand');
+  const scroller = document.getElementById('scroller');
+
+  sections.forEach((sec, i) => {
+    const b = document.createElement('button');
+    b.setAttribute('aria-label', sec.dataset.label || (i === 0 ? '開始' : ('第 ' + i + ' 段')));
+    b.addEventListener('click', () => sec.scrollIntoView({behavior:'smooth'}));
+    dotsContainer.appendChild(b);
+  });
+  const dotEls = Array.from(dotsContainer.children);
+
+  function setActive(index){
+    dotEls.forEach((d,i) => d.classList.toggle('active', i === index));
+    const deg = (index / (sections.length - 1)) * 360;
+    hand.style.transform = 'rotate(' + deg + 'deg)';
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting && entry.intersectionRatio > 0.55){
+        entry.target.classList.add('in-view');
+        const idx = sections.indexOf(entry.target);
+        setActive(idx);
+      }
+    });
+  }, { root: scroller, threshold: [0.55] });
+
+  sections.forEach(sec => io.observe(sec));
+  setActive(0);
+</script>
+
+</body>
+</html>
