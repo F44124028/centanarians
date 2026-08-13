@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>自己學會的日子</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700;900&family=Noto+Sans+TC:wght@300;400;500&display=swap');
+
+  :root{
+    --paper:      #E9E1CC;
+    --paper-deep: #DED2AF;
+    --ink:        #2A2620;
+    --ink-soft:   #5A5344;
+    --sea:        #3E5C56;
+    --sea-deep:   #2C433E;
+    --rope:       #A0703F;
+    --line:       #8C8264;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html,body{
+    height:100%;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Serif TC', serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body{ overflow:hidden; }
+
+  #scroller{
+    height:100dvh;
+    height:100vh;
+    overflow-y:scroll;
+    scroll-snap-type:y mandatory;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  #scroller::-webkit-scrollbar{ display:none; }
+
+  section{
+    position:relative;
+    min-height:100dvh;
+    min-height:100vh;
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+    display:flex;
+    flex-direction:column;
+    padding:0 26px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  section::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(ellipse at 15% 8%, rgba(160,112,63,0.07), transparent 55%),
+      radial-gradient(ellipse at 85% 95%, rgba(62,92,86,0.09), transparent 55%);
+    pointer-events:none;
+    z-index:0;
+  }
+  section > *{ position:relative; z-index:1; }
+
+  /* ---------- title page ---------- */
+  #title{
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    background:var(--sea-deep);
+    color:var(--paper);
+  }
+  #title::before{ background:none; }
+
+  .place{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    font-size:12px;
+    letter-spacing:0.28em;
+    color:rgba(233,225,204,0.65);
+    margin-bottom:28px;
+  }
+
+  .main-title{
+    font-weight:900;
+    font-size:clamp(24px, 7.2vw, 38px);
+    line-height:1.5;
+    letter-spacing:0.06em;
+    white-space:nowrap;
+  }
+
+  .title-rule{
+    width:36px;
+    height:1px;
+    background:var(--rope);
+    margin:30px auto;
+  }
+
+  .subtitle{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    font-size:15px;
+    color:rgba(233,225,204,0.8);
+    letter-spacing:0.15em;
+  }
+
+  .swipe-hint{
+    margin-top:70px;
+    font-family:'Noto Sans TC', sans-serif;
+    font-size:12px;
+    font-weight:300;
+    letter-spacing:0.3em;
+    color:rgba(233,225,204,0.55);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+  .chev{
+    width:9px; height:9px;
+    border-right:1px solid rgba(233,225,204,0.55);
+    border-bottom:1px solid rgba(233,225,204,0.55);
+    transform:rotate(45deg);
+    animation:bob 2.2s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{ transform:rotate(45deg) translate(0,0); opacity:0.4; }
+    50%{ transform:rotate(45deg) translate(4px,4px); opacity:0.9; }
+  }
+
+  /* ---------- content pages ---------- */
+  .tide{
+    width:100%;
+    max-width:600px;
+    height:10px;
+    margin-top:16vh;
+    margin-bottom:20px;
+    opacity:0;
+    transition:opacity 0.8s ease 0.1s;
+  }
+  .tide path{ stroke:var(--line); stroke-width:1; fill:none; opacity:0.55; }
+
+  p.para{
+    max-width:600px;
+    font-size:clamp(16.5px, 4.6vw, 19px);
+    line-height:2.05;
+    letter-spacing:0.045em;
+    color:var(--ink);
+    text-align:justify;
+    padding-bottom:16vh;
+    opacity:0;
+    transform:translateY(14px);
+    transition:opacity 0.85s ease, transform 0.85s ease;
+  }
+
+  section.in-view .tide,
+  section.in-view p.para,
+  section.in-view .dialogue-page{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  section:nth-of-type(odd):not(#title){ background:var(--paper); }
+  section:nth-of-type(even):not(#title){ background:var(--paper-deep); }
+
+  /* ---------- dialogue page ---------- */
+  .dialogue-page{
+    max-width:600px;
+    padding-bottom:16vh;
+    opacity:0;
+    transform:translateY(14px);
+    transition:opacity 0.85s ease, transform 0.85s ease;
+    display:flex;
+    flex-direction:column;
+    gap:26px;
+    text-align:left;
+  }
+  .dialogue-page .line{
+    font-size:clamp(17px, 4.8vw, 20px);
+    line-height:1.9;
+    letter-spacing:0.04em;
+    color:var(--ink);
+  }
+  .dialogue-page .line.grandma{
+    color:var(--sea-deep);
+    font-weight:500;
+  }
+  .dialogue-page .line.grandson{
+    color:var(--ink-soft);
+  }
+
+  /* ---------- side progress dots ---------- */
+  #dots{
+    position:fixed;
+    right:12px;
+    top:50%;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    z-index:20;
+  }
+  #dots button{
+    width:5px; height:5px;
+    border-radius:50%;
+    border:none;
+    background:var(--line);
+    opacity:0.4;
+    padding:0;
+    cursor:pointer;
+    transition:opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+  }
+  #dots button.active{
+    opacity:1;
+    background:var(--sea);
+    transform:scale(1.6);
+  }
+
+  /* ---------- clock-hand progress ---------- */
+  #clock{
+    position:fixed;
+    left:50%;
+    bottom:16px;
+    transform:translateX(-50%);
+    z-index:20;
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:rgba(42,38,32,0.06);
+    backdrop-filter:blur(2px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #clock svg{ width:100%; height:100%; }
+  #clock circle.face{
+    fill:none;
+    stroke:var(--line);
+    stroke-width:1;
+    opacity:0.5;
+  }
+  #clock line.hand{
+    stroke:var(--rope);
+    stroke-width:1.6;
+    stroke-linecap:round;
+    transform-origin:19px 19px;
+    transition:transform 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  #clock circle.hub{ fill:var(--rope); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+    .tide, p.para, .dialogue-page{ opacity:1 !important; transform:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="scroller">
+
+  <section id="title">
+    <div class="place">台東百歲人瑞寫真集</div>
+    <h1 class="main-title">自己學會的日子</h1>
+    <div class="title-rule"></div>
+    <p class="subtitle">陳素金</p>
+    <div class="swipe-hint">上滑閱讀<span class="chev"></span></div>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <div class="dialogue-page">
+      <div class="line grandson">「Mamo 我回來了！」孫子一進門，先喊了一聲奶奶。</div>
+      <div class="line grandma">「檳榔呢？」她抬起頭問。</div>
+      <div class="line grandson">「沒有錢啊，怎麼買？」孫子說。</div>
+      <div class="line grandma">「你有錢啊，你有工作啊！」她這麼說。</div>
+    </div>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">這是陳素金和孫子之間的小玩笑。她從十六歲起開始吃檳榔，一吃就是數十年。十六歲，對現在的孩子來說還是稚氣未脫的年紀，但那時的陳素金，早已開始為了生活奔波忙碌。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">陳素金是阿美族，民國十五年出生，家中有三女一男，她排行第二。小時候，一家人住在山上的稻草屋裡，父母靠著切菸絲、捲菸販售維生，家裡也種些農作物。陳素金經常負責挑水回家，赤足踏在泥濘的山路上，走很遠的路去挑水。除了路途遙遠，路上還可能被狗追，因此她還記得，去程時拿著空桶，她可以用跑得而快一些，然而裝了水後，回程就只能慢慢走。這些勞動，自小就是陳素金生活的一部分。經常被大人差遣做事的她，聽話且不頂嘴，深受長輩的疼愛，老人家總說她很可愛。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">儘管求學在陳素金生命中，佔有的篇章並不長，卻留下了許多深刻的回憶。她就讀富岡國小利吉分校，當時的環境克難，颱風過後大家便到溪流裡撿漂流木，拿回來製作成桌椅。如果有夠大的木頭，鋸開來就能當黑板。陳素金曾經代表學校，到都蘭參加運動會的跳遠項目。那時的她無師自通，沒人教就抓到了跳遠的要領，跳出了很好的成績。有人問她是怎麼做到的，她只說：「想辦法啊，自己想怎麼跳過。」許多年後，陳素金的其中一個孫女也練習跳遠。有次孫女遇到了瓶頸，陳素金便把自己摸索出的技巧告訴孫女，孫女竟就順利突破瓶頸了。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">國小畢業後，她沒有繼續升學，而是回到家裡幫忙做農事。陳素金十五歲時，同樣是阿美族的丈夫陳榮樹入贅家中。那時兩個人其實都還是孩子，婚後初期甚至沒有同房，直到十六歲才開始同睡，十八歲便懷孕。更特別的是，她的月經一年才來一次，竟然就這樣誕下了十個子女。後來因為丈夫的姊姊生病，一家人搬到如今居住的地方。陳素金和丈夫的感情很好，即便偶爾吵架，也是很快就和好。令人莞爾的是，除了大兒子以外的其他子女，都以為父母從來沒有吵過架，因為他們吵架竟是用日文吵，只有懂一點日文的大兒子知道。在陳素金有事出門時，便會吩咐丈夫做飯。兩個人就這樣一起生活了一輩子，沒有太多轟轟烈烈的故事，卻有自己的默契。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">早期陳素金的工作以務農為主，插秧、割稻，什麼農事都做。她自己並沒有田，便替別人做工，收成後和地主各分一半的稻穀。她也曾經和好友一起工作，受雇於人到溪底種西瓜。就是在那段日子裡，她和朋友常常趁著中午休息的時間繡花。老闆好心的搭建了涼亭讓陳素金和朋友午睡，她們卻說：「我們不要睡覺，要繡花啦」。有次和朋友在溪底繡花時，朋友繡了一條腰帶，繡到只剩一截，卻怎麼繡都覺得不對，氣得把腰帶丟進帶刺的草叢裡。她趕緊阻止：「不可以這樣子丟啦。」便找了一根棍子撥開草叢，把腰帶撿回來，還替朋友繡好。朋友問她怎麼弄好的，她只說：「我是好人嘛。」</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">說來不可思議，她的刺繡沒有人正式教過，只是到親戚家中看人家怎麼繡，回家繡一段，忘了再去看，就這樣全靠眼睛一點一點記起來。對刺繡很有要求的陳素金說：「繡花不是隨便，要弄好才好看。」她不只繡了自己的跳舞服飾，也繡了許多傳統服飾給兒女以及孫子女。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">年輕時的陳素金，很喜愛唱歌、跳舞。小時候挑水的路上，她總是一個人邊走邊唱著歌。在女兒的印象中，媽媽開心時就會唱歌，聲音又尖又亮。和跳遠及刺繡一樣，陳素金跳舞也是自學成材，只要看人家的腳就知道怎麼跳。她曾經跳過多次的豐年祭，她覺得，年輕時跳舞是一輩子最開心的事情。也許以前的生活很辛苦，但她並不是只記得辛苦。田裡的泥土、手裡的針線，挑水路上的歌聲和豐年祭的舞蹈，都是她記憶裡難以忘懷的一部分。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">陳素金的信仰，也曾在人生裡轉過一個彎。她曾經信仰耶和華見證人，不過由於教會離家太遠，再加上戒律嚴格，不能抽菸、不能吃檳榔，漸漸的她就沒有再去了。後來，她覺得自己既然沒特別信什麼，乾脆就在家裡拜拜，於是家裡多了一張神桌，祭祀陳素金的父母、丈夫。這樣的信仰轉變發生在女兒出嫁後，女兒某次回家看到神桌才知道。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">陳素金的個性一直很開朗，脾氣好，也有耐心，從沒和鄰居吵架過。女兒說，不管做錯什麼事情，她不會罵人，只會說好話；聽到別人被說壞話，也會替對方講話。不過她並不是沒有原則，如果有人真的做錯事，她會直接說：「不對就是不對。」儘管她讀過的書不多，卻靠著自己的眼睛學會刺繡，靠著自己摸索出跳遠技巧，靠著一雙手做了幾十年的農事，也靠著自己的方式，把家庭和日子一點一點撐起來。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">到了晚年，生活裡留下的事情慢慢少了，卻還是有一些她熟悉的習慣。儘管陳素金不是很會做飯，卻很會包肉粽和做紅龜粿。從前她嗜辣，一碗飯配著小辣椒，也能吃下不少，但如今那對她來說太辣了。而身體還好的時候，陳素金會在院子裡種菜，吃完一種，再種下一種。儘管已經不需為了家庭而勞動，她依舊維持著良好的體能，甚至曾經和參加棒球比賽的孫子，一起去日本遊歷。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">如今的陳素金記憶有些退化，說話偶爾零散，但她仍然有很濃厚的分享欲，總是和家人講個不停。對於她這一代的人來說，煮一頓飯、做一天的工、把孩子養大、替家人製作衣服，便已經是愛，許多感情從來不需要說出口，不過當女兒跟她說「我愛你」，她也會回覆「愛你」。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para" style="padding-bottom:22vh;">十六歲那年，她開始吃檳榔，也開始在生活裡學著成為一個大人。那時候的她或許不會想到，從山裡挑水、田裡插秧，到繡花、跳舞，再到如今坐在家裡和孫子鬥嘴，這一走，就是八十多年。一路上，她似乎沒有太多時間停下來想自己的人生，只是遇到什麼，就做什麼；不會的，就自己想辦法。如今年已過百，日子慢了下來，她還是那個會問孫子「檳榔呢？」的陳素金。走過一百年，她沒有刻意留下什麼驚天動地的故事，卻總是把事情一件一件做好，也把愛藏在這些日常裡。</p>
+  </section>
+
+</div>
+
+<div id="dots"></div>
+
+<div id="clock" aria-hidden="true">
+  <svg viewBox="0 0 38 38">
+    <circle class="face" cx="19" cy="19" r="15"></circle>
+    <line class="hand" id="hand" x1="19" y1="19" x2="19" y2="7"></line>
+    <circle class="hub" cx="19" cy="19" r="1.6"></circle>
+  </svg>
+</div>
+
+<script>
+  const sections = Array.from(document.querySelectorAll('section'));
+  const dotsContainer = document.getElementById('dots');
+  const hand = document.getElementById('hand');
+  const scroller = document.getElementById('scroller');
+
+  sections.forEach((sec, i) => {
+    const b = document.createElement('button');
+    b.setAttribute('aria-label', i === 0 ? '開始' : ('第 ' + i + ' 段'));
+    b.addEventListener('click', () => sec.scrollIntoView({behavior:'smooth'}));
+    dotsContainer.appendChild(b);
+  });
+  const dotEls = Array.from(dotsContainer.children);
+
+  function setActive(index){
+    dotEls.forEach((d,i) => d.classList.toggle('active', i === index));
+    const deg = (index / (sections.length - 1)) * 360;
+    hand.style.transform = 'rotate(' + deg + 'deg)';
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting && entry.intersectionRatio > 0.55){
+        entry.target.classList.add('in-view');
+        const idx = sections.indexOf(entry.target);
+        setActive(idx);
+      }
+    });
+  }, { root: scroller, threshold: [0.55] });
+
+  sections.forEach(sec => io.observe(sec));
+  setActive(0);
+</script>
+
+</body>
+</html>
