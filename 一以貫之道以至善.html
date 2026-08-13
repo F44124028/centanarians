@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>一以貫之，道以至善</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700;900&family=Noto+Sans+TC:wght@300;400;500&display=swap');
+
+  :root{
+    --paper:      #E9E1CC;
+    --paper-deep: #DED2AF;
+    --ink:        #2A2620;
+    --ink-soft:   #5A5344;
+    --sea:        #3E5C56;
+    --sea-deep:   #2C433E;
+    --rope:       #A0703F;
+    --line:       #8C8264;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html,body{
+    height:100%;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Serif TC', serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body{ overflow:hidden; }
+
+  #scroller{
+    height:100dvh;
+    height:100vh;
+    overflow-y:scroll;
+    scroll-snap-type:y mandatory;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  #scroller::-webkit-scrollbar{ display:none; }
+
+  section{
+    position:relative;
+    min-height:100dvh;
+    min-height:100vh;
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+    display:flex;
+    flex-direction:column;
+    padding:0 26px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  section::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(ellipse at 15% 8%, rgba(160,112,63,0.07), transparent 55%),
+      radial-gradient(ellipse at 85% 95%, rgba(62,92,86,0.09), transparent 55%);
+    pointer-events:none;
+    z-index:0;
+  }
+  section > *{ position:relative; z-index:1; }
+
+  /* ---------- title page ---------- */
+  #title{
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    background:var(--sea-deep);
+    color:var(--paper);
+  }
+  #title::before{ background:none; }
+
+  .place{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    font-size:12px;
+    letter-spacing:0.28em;
+    color:rgba(233,225,204,0.65);
+    margin-bottom:28px;
+  }
+
+  .main-title{
+    font-weight:900;
+    font-size:clamp(21px, 6.6vw, 34px);
+    line-height:1.55;
+    letter-spacing:0.03em;
+    white-space:nowrap;
+  }
+
+  .title-rule{
+    width:36px;
+    height:1px;
+    background:var(--rope);
+    margin:30px auto;
+  }
+
+  .subtitle{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    font-size:15px;
+    color:rgba(233,225,204,0.8);
+    letter-spacing:0.15em;
+  }
+
+  .swipe-hint{
+    margin-top:70px;
+    font-family:'Noto Sans TC', sans-serif;
+    font-size:12px;
+    font-weight:300;
+    letter-spacing:0.3em;
+    color:rgba(233,225,204,0.55);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+  .chev{
+    width:9px; height:9px;
+    border-right:1px solid rgba(233,225,204,0.55);
+    border-bottom:1px solid rgba(233,225,204,0.55);
+    transform:rotate(45deg);
+    animation:bob 2.2s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{ transform:rotate(45deg) translate(0,0); opacity:0.4; }
+    50%{ transform:rotate(45deg) translate(4px,4px); opacity:0.9; }
+  }
+
+  /* ---------- content pages ---------- */
+  .tide{
+    width:100%;
+    max-width:600px;
+    height:10px;
+    margin-top:16vh;
+    margin-bottom:20px;
+    opacity:0;
+    transition:opacity 0.8s ease 0.1s;
+  }
+  .tide path{ stroke:var(--line); stroke-width:1; fill:none; opacity:0.55; }
+
+  p.para{
+    max-width:600px;
+    font-size:clamp(16.5px, 4.6vw, 19px);
+    line-height:2.05;
+    letter-spacing:0.045em;
+    color:var(--ink);
+    text-align:justify;
+    padding-bottom:16vh;
+    opacity:0;
+    transform:translateY(14px);
+    transition:opacity 0.85s ease, transform 0.85s ease;
+  }
+
+  section.in-view .tide,
+  section.in-view p.para{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  section:nth-of-type(odd):not(#title){ background:var(--paper); }
+  section:nth-of-type(even):not(#title){ background:var(--paper-deep); }
+
+  /* ---------- side progress dots ---------- */
+  #dots{
+    position:fixed;
+    right:12px;
+    top:50%;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    z-index:20;
+  }
+  #dots button{
+    width:5px; height:5px;
+    border-radius:50%;
+    border:none;
+    background:var(--line);
+    opacity:0.4;
+    padding:0;
+    cursor:pointer;
+    transition:opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+  }
+  #dots button.active{
+    opacity:1;
+    background:var(--sea);
+    transform:scale(1.6);
+  }
+
+  /* ---------- clock-hand progress ---------- */
+  #clock{
+    position:fixed;
+    left:50%;
+    bottom:16px;
+    transform:translateX(-50%);
+    z-index:20;
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:rgba(42,38,32,0.06);
+    backdrop-filter:blur(2px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #clock svg{ width:100%; height:100%; }
+  #clock circle.face{
+    fill:none;
+    stroke:var(--line);
+    stroke-width:1;
+    opacity:0.5;
+  }
+  #clock line.hand{
+    stroke:var(--rope);
+    stroke-width:1.6;
+    stroke-linecap:round;
+    transform-origin:19px 19px;
+    transition:transform 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  #clock circle.hub{ fill:var(--rope); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+    .tide, p.para{ opacity:1 !important; transform:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="scroller">
+
+  <section id="title">
+    <div class="place">台東百歲人瑞寫真集</div>
+    <h1 class="main-title">一以貫之，道以至善</h1>
+    <div class="title-rule"></div>
+    <p class="subtitle">郭雲</p>
+    <div class="swipe-hint">上滑閱讀<span class="chev"></span></div>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">難得涼風習習的夏日，來到池上闡德宮，便見郭雲爺爺拄著拐杖，精神奕奕地向我們走來。看著爺爺步履如此穩健，實是甚感驚喜，因為身子仍然硬朗的百歲人瑞可算是鳳毛麟角，如今想來，許是郭雲爺爺靜心養性有成的緣故。在爺爺的招呼下，我們圍坐他身旁，聽爺爺細數他那如經書般悠遠的一生...</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">郭雲，民國11年出生於四川省三臺縣同川府的花園鄉。郭雲的同年並不富足，家中只靠務農維持生計，而父親在他一歲時就過世。他的母親自他有記憶起，就具有虔誠的佛教信仰，而長期茹素。郭雲有一個姐姐，然而甚早就已不在，並且有兩個兄長，分別長其三歲與六歲。儘管是家中么子，因為兩位兄長皆不喜讀書，郭雲於是接替了求學的責任。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">郭雲於十二三歲時進入私塾，在就讀的三年間，研讀了《三字經》、《百家姓》、《中庸》、《大學》等經典，也學習了不少地理知識。然而，他的求學之路並未持續下去，因為不久後，戰爭的洪流湧現。在郭雲19歲時，成為了抗戰的一員，加入遠征軍，隸屬於陸軍13司令部。他隨著部隊踏遍大江南北，遠赴廣東、廣西、湖南、湖北、福建、安徽、江蘇等地，也曾經歷「徐蚌會戰」等多場戰役。憶起戰況，郭雲說曾在從上海撤退前的某個晚上，看到屍體一排一排的被丟進兩、三個人寬的坑裡，「看到真是怕，死好多人啊！」。儘管身在艱苦的戰場上，郭雲卻不僅保衛國家而已，也盡力照顧家人。作為遠征軍，部隊給發三千六百元的安家費，他全數都交給了母親。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">郭雲記憶猶新，民國38年五月十日，部隊從上海撤退，抵達臺灣時於基隆上岸。爾後，郭雲隨著部隊四處駐紮，到過嘉義、宜蘭、澎湖馬公等地，也在大金門、小金門住了一兩年，直到八二三砲戰過後，才回來臺灣。郭雲於民國47年退伍，一開始仍隨著部隊待在高雄燕巢，不久後，又到了基隆。在基隆，部隊訓練退伍軍人打魚，然而卻沒分給他們多少薪水。於是郭雲便離開部隊，到商店做事。儘管在商店做事有固定薪酬，但一個月兩百元，應付生計都稍顯勉強，連友人都覺得太少了，便邀郭雲和他一起做些小生意。因此，郭雲來到基隆，成為了推銷員，四處賣豆腐、豆干。雖然有賺到錢，但依舊不多，所以當有人告訴郭雲「東部缺人」時，郭雲便來到了台東池上的大同農場工作。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">在大同農場工作的期間，郭雲結識了一位來自關山鎮北庄社區的阿美族女子，並於民國56年結為連理。然而這段婚姻並未維繫長久，因為年齡差距過大，結婚十二年後便勞燕分飛。孑然一身的郭雲，不久後認養了一個乾兒子--「郭敏輝」，其父是同樣來到大同農場工作的軍中同袍，僅二十一歲便溘然長逝。郭雲持續提供養子生活費，含辛茹苦拉拔其成長，更為了讓他至北部發展，而在民國六十多年時，將農場的地全數售出。所幸養子亦未負其養育之恩，一路發展至今，於長榮航空公司擔任地勤人員，也會不定期帶孫子、孫女回台東探望老人家。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">如今，「一貫道」已是郭雲的精神與生活重心。而引領郭雲進入一貫道的引寶師，亦是他軍旅時期的同袍---楊自友。郭雲於民國65年進入一貫道，而後被授命為「前人」，負責地區性的道務。民國74年，郭雲來到池上闡德宮。此時，闡德宮仍在建造中，而郭雲亦出錢出力協助宮廟早日落成。雖然進入一貫道，郭雲卻不是自始就茹素，更可以說是潛移默化的結果。「人家都吃素，我不能不吃素嘛」，郭雲幽默地說道。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">雖然身居一貫道的前人之位，郭雲卻拒領薪酬，反而每逢初一、十五，就捐獻一千元支持宮廟運作，甚至曾經捐出一百萬，用來購置廟宇接送道親的公務車。除了在池上本地奉獻以外，郭雲也不忘自己的家鄉。十幾年前，郭雲和幾位老鄉一同回大陸四川辦道三次，渡化了一百多位鄉親。唯一的遺憾，是在臺時寫信回家，親人總告訴郭雲「媽媽還在」，然而直到他親自回鄉，才知道母親早已仙逝。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">在平凡的日常生活中，郭雲總是虔誠地對待他的信仰，奉行著不殺生、不做壞事的信念，並且總勸勉年輕人多做好事。雖已逾百歲，郭雲仍身體硬朗、精神矍鑠，而這有賴於他規律的日常作息，每日早睡早起，已及早晚規律運動---甩手、甩頭108下，保持身體的健康與活力。也因此，時至現今，郭雲仍舊能在初一、十五祭拜時，與一眾道親一起進行五百叩首，過年時甚至做到一千叩首。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">儘管年歲已高，郭雲依然熱愛閱讀，尤其常看「三寶心法」，在精神上得到不斷的滋養。用他的家鄉話來形容，可說是「閒不離書」。不過郭雲也告訴我們：「不重要的書就不要看」，字句間透露出對時間的珍視。前兩年間，郭雲甚至日日抄經，修心養性，直至近期因白內障視力減退，才終止抄經。問起郭雲是否還保留著抄寫的經文時，他謙虛地表示「寫得不好看，都丟了啦」。不過，雖然視力不如以前，郭雲仍不減對書本的熱愛，依舊每日撥空閱讀經書。採訪當日，道親林賜融先生提及郭雲還會背「彌陀真經」，而郭雲雖說著「只記得一些些」，隨後卻一字不漏地背出了整部經文，讓在場所有人都佩服不已！</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">閒暇之餘，郭雲也會和道親一起下象棋，消磨時間也同時鍛鍊心智。談及郭雲，道親林賜融先生，也是郭雲現今的主要照顧者說道，郭雲真的是一位很善良的人，沒有過多地為自己考量，而總是為他人著想。同是道親的夏榕聲女士則表示，郭雲對道場極為誠心，付出很多。的確，郭雲在闡德宮數十年來，總是心懷感恩、無私奉獻。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para" style="padding-bottom:22vh;">「人生不求長壽，但求百年無憂。」郭雲爺爺以自己的行動詮釋著這句話，不僅活得長壽，更是擁有著心靈的富足與無憂。郭雲在戰亂年代走過艱辛，也為生活努力拚搏，更堅持信仰，用生命詮釋堅毅與智慧。或許，樂天知命正是百年長壽的秘訣，而善行和奉獻更在爺爺如經書般雋永的人生中，拼織出精彩的篇章。</p>
+  </section>
+
+
+</div>
+
+<div id="dots"></div>
+
+<div id="clock" aria-hidden="true">
+  <svg viewBox="0 0 38 38">
+    <circle class="face" cx="19" cy="19" r="15"></circle>
+    <line class="hand" id="hand" x1="19" y1="19" x2="19" y2="7"></line>
+    <circle class="hub" cx="19" cy="19" r="1.6"></circle>
+  </svg>
+</div>
+
+<script>
+  const sections = Array.from(document.querySelectorAll('section'));
+  const dotsContainer = document.getElementById('dots');
+  const hand = document.getElementById('hand');
+  const scroller = document.getElementById('scroller');
+
+  sections.forEach((sec, i) => {
+    const b = document.createElement('button');
+    b.setAttribute('aria-label', i === 0 ? '開始' : ('第 ' + i + ' 段'));
+    b.addEventListener('click', () => sec.scrollIntoView({behavior:'smooth'}));
+    dotsContainer.appendChild(b);
+  });
+  const dotEls = Array.from(dotsContainer.children);
+
+  function setActive(index){
+    dotEls.forEach((d,i) => d.classList.toggle('active', i === index));
+    const deg = (index / (sections.length - 1)) * 360;
+    hand.style.transform = 'rotate(' + deg + 'deg)';
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting && entry.intersectionRatio > 0.55){
+        entry.target.classList.add('in-view');
+        const idx = sections.indexOf(entry.target);
+        setActive(idx);
+      }
+    });
+  }, { root: scroller, threshold: [0.55] });
+
+  sections.forEach(sec => io.observe(sec));
+  setActive(0);
+</script>
+
+</body>
+</html>

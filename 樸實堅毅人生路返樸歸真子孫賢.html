@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>樸實堅毅人生路，返璞歸真子孫賢</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700;900&family=Noto+Sans+TC:wght@300;400;500&display=swap');
+
+  :root{
+    --paper:      #E9E1CC;
+    --paper-deep: #DED2AF;
+    --ink:        #2A2620;
+    --ink-soft:   #5A5344;
+    --sea:        #3E5C56;
+    --sea-deep:   #2C433E;
+    --rope:       #A0703F;
+    --line:       #8C8264;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html,body{
+    height:100%;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Serif TC', serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body{ overflow:hidden; }
+
+  #scroller{
+    height:100dvh;
+    height:100vh;
+    overflow-y:scroll;
+    scroll-snap-type:y mandatory;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  #scroller::-webkit-scrollbar{ display:none; }
+
+  section{
+    position:relative;
+    min-height:100dvh;
+    min-height:100vh;
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+    display:flex;
+    flex-direction:column;
+    padding:0 26px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  section::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(ellipse at 15% 8%, rgba(160,112,63,0.07), transparent 55%),
+      radial-gradient(ellipse at 85% 95%, rgba(62,92,86,0.09), transparent 55%);
+    pointer-events:none;
+    z-index:0;
+  }
+  section > *{ position:relative; z-index:1; }
+
+  /* ---------- title page ---------- */
+  #title{
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    background:var(--sea-deep);
+    color:var(--paper);
+  }
+  #title::before{ background:none; }
+
+  .place{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    font-size:12px;
+    letter-spacing:0.28em;
+    color:rgba(233,225,204,0.65);
+    margin-bottom:28px;
+  }
+
+  .main-title{
+    font-weight:900;
+    font-size:clamp(21px, 6.6vw, 34px);
+    line-height:1.55;
+    letter-spacing:0.03em;
+    white-space:nowrap;
+  }
+
+  .title-rule{
+    width:36px;
+    height:1px;
+    background:var(--rope);
+    margin:30px auto;
+  }
+
+  .subtitle{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    font-size:15px;
+    color:rgba(233,225,204,0.8);
+    letter-spacing:0.15em;
+  }
+
+  .swipe-hint{
+    margin-top:70px;
+    font-family:'Noto Sans TC', sans-serif;
+    font-size:12px;
+    font-weight:300;
+    letter-spacing:0.3em;
+    color:rgba(233,225,204,0.55);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+  .chev{
+    width:9px; height:9px;
+    border-right:1px solid rgba(233,225,204,0.55);
+    border-bottom:1px solid rgba(233,225,204,0.55);
+    transform:rotate(45deg);
+    animation:bob 2.2s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{ transform:rotate(45deg) translate(0,0); opacity:0.4; }
+    50%{ transform:rotate(45deg) translate(4px,4px); opacity:0.9; }
+  }
+
+  /* ---------- content pages ---------- */
+  .tide{
+    width:100%;
+    max-width:600px;
+    height:10px;
+    margin-top:16vh;
+    margin-bottom:20px;
+    opacity:0;
+    transition:opacity 0.8s ease 0.1s;
+  }
+  .tide path{ stroke:var(--line); stroke-width:1; fill:none; opacity:0.55; }
+
+  p.para{
+    max-width:600px;
+    font-size:clamp(16.5px, 4.6vw, 19px);
+    line-height:2.05;
+    letter-spacing:0.045em;
+    color:var(--ink);
+    text-align:justify;
+    padding-bottom:16vh;
+    opacity:0;
+    transform:translateY(14px);
+    transition:opacity 0.85s ease, transform 0.85s ease;
+  }
+
+  section.in-view .tide,
+  section.in-view p.para{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  section:nth-of-type(odd):not(#title){ background:var(--paper); }
+  section:nth-of-type(even):not(#title){ background:var(--paper-deep); }
+
+  /* ---------- side progress dots ---------- */
+  #dots{
+    position:fixed;
+    right:12px;
+    top:50%;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    z-index:20;
+  }
+  #dots button{
+    width:5px; height:5px;
+    border-radius:50%;
+    border:none;
+    background:var(--line);
+    opacity:0.4;
+    padding:0;
+    cursor:pointer;
+    transition:opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+  }
+  #dots button.active{
+    opacity:1;
+    background:var(--sea);
+    transform:scale(1.6);
+  }
+
+  /* ---------- clock-hand progress ---------- */
+  #clock{
+    position:fixed;
+    left:50%;
+    bottom:16px;
+    transform:translateX(-50%);
+    z-index:20;
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:rgba(42,38,32,0.06);
+    backdrop-filter:blur(2px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #clock svg{ width:100%; height:100%; }
+  #clock circle.face{
+    fill:none;
+    stroke:var(--line);
+    stroke-width:1;
+    opacity:0.5;
+  }
+  #clock line.hand{
+    stroke:var(--rope);
+    stroke-width:1.6;
+    stroke-linecap:round;
+    transform-origin:19px 19px;
+    transition:transform 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  #clock circle.hub{ fill:var(--rope); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+    .tide, p.para{ opacity:1 !important; transform:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="scroller">
+
+  <section id="title">
+    <div class="place">台東百歲人瑞寫真集</div>
+    <h1 class="main-title">樸實堅毅人生路<br>返璞歸真子孫賢</h1>
+    <div class="title-rule"></div>
+    <p class="subtitle">吳張香</p>
+    <div class="swipe-hint">上滑閱讀<span class="chev"></span></div>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">吳張香，民國11年出生於南投縣中寮鄉，有一個兄長，以及一個弟弟，在太平洋戰爭時期，受日本徵召至南洋當軍伕，而未曾回來。小時候，吳張香家中有養牛，而在民國31年，吳張香與同樣是南投中寮人的丈夫吳伯夷結為連理，便承襲著男主外、女主內的傳統，由丈夫耕種、外出做生意，吳張香則成為一位稱職的家庭主婦，也不時會下田幫忙。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">中寮鄉，位於南投的西部，地勢多為緩坡之丘陵地帶，出入往來極為不便。吳張香與丈夫居住在中寮鄉時，丈夫以栽種香蕉為職業，採收後將扁擔扛在肩上，長途跋涉至南投市區的街上販賣。待售罄換回收入，再採買家中所需蔬果，同樣經歷長途跋涉，回到位於山上的家中。吳張香的小兒子吳森榮回憶到，「孩子吃的所有東西，都要經過爸爸的肩膀擔過」。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">居住在偏遠地區所造成的不便還不止於此，若是生病，求醫也極為困難。吳張香的二女兒小時候有次發燒，吳張香便揹著她從山中步行至南投街上找醫生。在那時，醫療觀念尚未普及，於炎熱的天氣下行走這麼一段長距離，吳張香並未準備飲用水。求醫的半路經過一個麵攤，便將二女兒從揹帶解下，而這時高燒的二女兒竟爬到店家的洗碗槽，想要找水喝。大概因為發燒過於嚴重，至此之後二女兒便成喑啞。或許對二女兒存著些許愧疚，吳張香總格外照顧她，凡事都會特別交代。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">正是因為生活在如此交通不便的山區，並且生活甚為困苦，在丈夫吳伯夷的哥哥搬到台東後，吳張香與丈夫亦於民國42年時，舉家搬遷至臺東。現今台東市寶桑國小的運動埕一帶，在吳張香全家剛搬來臺東時，原先都是他們所購買的土地。然而約民國60年時，被政府徵收土地，而再度搬遷至現今居住之址。在吳張香二兒子的眼中，父母都是極為實誠的農民，栽種的農作物都以蔬菜為主，比如絲瓜、筊白筍等等，而不是栽種價格較高的荖葉(包檳榔的葉子)。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">在不甚富裕的生活條件下，吳張香夫妻倆含辛茹苦的養育了五個孩子長大，最長及最幼是兩個兒子，中間三個小孩則都是女兒。據小兒子所說，吳張香原先的第四胎，是在搬來臺東不久前懷上，然而在搬家的路途中，坐在古早簡易的車子上，沿路的顛簸卻使得吳張香流產了。除此之外，在小兒子之後原先也有一個妹妹，可惜在三歲時就夭折了。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">吳張香從婚後便信奉一貫道，自小兒子吳森榮有印象起，父母親夫妻倆總是茹素。有一日，年幼的吳森榮在洗澡時脫去上衣，被父親瞧見，驚覺孩子幾近骨瘦如柴，便決議讓孩子們吃葷食以補充營養。自此以後，每當吳張香煮飯時，總會分成兩鍋，一鍋是夫妻倆所吃的素食，另一鍋則是專為孩子們準備的葷食。儘管一貫道規定道親家中若有設佛堂便要吃素，但吳張香並非冥頑不靈固守規定之人，在自身依舊茹素的情況下，為子女做最大的著想。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">提到信仰，小兒子吳森榮十分佩服母親。儘管吳張香並未讀書識字，卻能夠記住一貫道中許多神佛的名稱，這想必是極為虔誠才有辦法做到的吧。在吳張香身體尚屬強健時，每日的早中晚都會至佛堂拜拜，而到年歲較高，腳已不方便走路時，也依然坐在房間中，朝著佛堂的方向拜拜，可見其信仰之堅定。而家中的佛堂，在尼伯特颱風侵襲時被破壞，加上吳張香年紀已大，家人便將佛堂收起，也因此將吳張香的照顧者從臺籍改為聘請外籍。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">在小兒子吳森榮看來，母親如今很有福報，聘請到了一位做事用心的印尼籍家庭看護。其實不只如此，吳張香的兒女媳婦也都對其很是孝順，數十年來吳張香都與長兒一家共同生活，長兒雖英年早逝，卻依舊有長媳長年的陪伴與照顧，直至近期長媳抱病在身而住院，才換由小兒子回家與其同住。在家人與看護的悉心照料之下，吳張香幾乎不曾就醫，甚至即便已達百歲之高齡，兒子仍覺得「媽媽的手就像紅嬰仔般幼嫩」。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">吳張香自幼眼睛就不太好，曾經視網膜剝離，因此不愛出門。八十幾歲時，兒子要她多運動、多走路，但她總在廚房坐著，於是肌肉的退化便較為快速。兒子亦曾提議讓吳張香坐輪椅以帶她出門，吳張香卻回覆道：「莫啦，彼按呢歹看啦！(不要啦，這樣不好看啦)」不過，這並不是指吳張香很愛漂亮，而是因為由別人推輪椅，她覺得這樣坐出去很不好意思，不願意麻煩別人。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">吳張香除了體貼以外，更非常的正直。小兒子吳森榮記得，年輕時曾簽六合彩，偶爾中了獎，想要將獎金拿回家孝敬母親，吳張香卻說「不要!那賭博錢我不要!」，展現出其堅持的一面。不過，吳張香其實個性溫和，從不會和人計較或吵架。在小兒子當兵時，吳張香不僅幫忙帶小孩，也幫媳婦坐月子。在媳婦眼中，吳張香也是一位很好的婆婆。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">吳張香的待人良善，無形中或許也為子孫帶來庇佑。吳張香的大兒子，曾經開車跌進溝裡，人卻沒怎樣；么兒之子有次騎機車，被一台小貨車撞到，機車支離破碎，結果人也沒什麼大礙。因此兒子吳森榮覺得，這都是媽媽長期茹素、為人善良所帶來的福報。「序大人做好，才會出好囝孫」，吳森榮如是說道。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para" style="padding-bottom:22vh;">綜觀吳張香的人生，儘管身在困頓的環境中，她卻以無私的付出和良善正直的品性，培育了一個滿載溫情的家庭。她對家人的關愛，無須多言，卻無比深刻。在平實無華的生活中，吳張香悄然繪就了一幅寧靜美滿的人生圖畫......</p>
+  </section>
+
+
+</div>
+
+<div id="dots"></div>
+
+<div id="clock" aria-hidden="true">
+  <svg viewBox="0 0 38 38">
+    <circle class="face" cx="19" cy="19" r="15"></circle>
+    <line class="hand" id="hand" x1="19" y1="19" x2="19" y2="7"></line>
+    <circle class="hub" cx="19" cy="19" r="1.6"></circle>
+  </svg>
+</div>
+
+<script>
+  const sections = Array.from(document.querySelectorAll('section'));
+  const dotsContainer = document.getElementById('dots');
+  const hand = document.getElementById('hand');
+  const scroller = document.getElementById('scroller');
+
+  sections.forEach((sec, i) => {
+    const b = document.createElement('button');
+    b.setAttribute('aria-label', i === 0 ? '開始' : ('第 ' + i + ' 段'));
+    b.addEventListener('click', () => sec.scrollIntoView({behavior:'smooth'}));
+    dotsContainer.appendChild(b);
+  });
+  const dotEls = Array.from(dotsContainer.children);
+
+  function setActive(index){
+    dotEls.forEach((d,i) => d.classList.toggle('active', i === index));
+    const deg = (index / (sections.length - 1)) * 360;
+    hand.style.transform = 'rotate(' + deg + 'deg)';
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting && entry.intersectionRatio > 0.55){
+        entry.target.classList.add('in-view');
+        const idx = sections.indexOf(entry.target);
+        setActive(idx);
+      }
+    });
+  }, { root: scroller, threshold: [0.55] });
+
+  sections.forEach(sec => io.observe(sec));
+  setActive(0);
+</script>
+
+</body>
+</html>

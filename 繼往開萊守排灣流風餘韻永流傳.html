@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>繼往開「萊」守排灣，流風餘「韻」永流傳</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700;900&family=Noto+Sans+TC:wght@300;400;500&display=swap');
+
+  :root{
+    --paper:      #E9E1CC;
+    --paper-deep: #DED2AF;
+    --ink:        #2A2620;
+    --ink-soft:   #5A5344;
+    --sea:        #3E5C56;
+    --sea-deep:   #2C433E;
+    --rope:       #A0703F;
+    --line:       #8C8264;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html,body{
+    height:100%;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Serif TC', serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body{ overflow:hidden; }
+
+  #scroller{
+    height:100dvh;
+    height:100vh;
+    overflow-y:scroll;
+    scroll-snap-type:y mandatory;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  #scroller::-webkit-scrollbar{ display:none; }
+
+  section{
+    position:relative;
+    min-height:100dvh;
+    min-height:100vh;
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+    display:flex;
+    flex-direction:column;
+    padding:0 26px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  section::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(ellipse at 15% 8%, rgba(160,112,63,0.07), transparent 55%),
+      radial-gradient(ellipse at 85% 95%, rgba(62,92,86,0.09), transparent 55%);
+    pointer-events:none;
+    z-index:0;
+  }
+  section > *{ position:relative; z-index:1; }
+
+  /* ---------- title page ---------- */
+  #title{
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    background:var(--sea-deep);
+    color:var(--paper);
+  }
+  #title::before{ background:none; }
+
+  .place{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    font-size:12px;
+    letter-spacing:0.28em;
+    color:rgba(233,225,204,0.65);
+    margin-bottom:28px;
+  }
+
+  .main-title{
+    font-weight:900;
+    font-size:clamp(24px, 7.2vw, 38px);
+    line-height:1.55;
+    letter-spacing:0.03em;
+    white-space:nowrap;
+  }
+
+  .title-rule{
+    width:36px;
+    height:1px;
+    background:var(--rope);
+    margin:30px auto;
+  }
+
+  .subtitle{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    font-size:15px;
+    color:rgba(233,225,204,0.8);
+    letter-spacing:0.15em;
+  }
+
+  .swipe-hint{
+    margin-top:70px;
+    font-family:'Noto Sans TC', sans-serif;
+    font-size:12px;
+    font-weight:300;
+    letter-spacing:0.3em;
+    color:rgba(233,225,204,0.55);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+  .chev{
+    width:9px; height:9px;
+    border-right:1px solid rgba(233,225,204,0.55);
+    border-bottom:1px solid rgba(233,225,204,0.55);
+    transform:rotate(45deg);
+    animation:bob 2.2s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{ transform:rotate(45deg) translate(0,0); opacity:0.4; }
+    50%{ transform:rotate(45deg) translate(4px,4px); opacity:0.9; }
+  }
+
+  /* ---------- content pages ---------- */
+  .tide{
+    width:100%;
+    max-width:600px;
+    height:10px;
+    margin-top:16vh;
+    margin-bottom:20px;
+    opacity:0;
+    transition:opacity 0.8s ease 0.1s;
+  }
+  .tide path{ stroke:var(--line); stroke-width:1; fill:none; opacity:0.55; }
+
+  p.para{
+    max-width:600px;
+    font-size:clamp(16.5px, 4.6vw, 19px);
+    line-height:2.05;
+    letter-spacing:0.045em;
+    color:var(--ink);
+    text-align:justify;
+    padding-bottom:16vh;
+    opacity:0;
+    transform:translateY(14px);
+    transition:opacity 0.85s ease, transform 0.85s ease;
+  }
+
+  section.in-view .tide,
+  section.in-view p.para{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  section:nth-of-type(odd):not(#title){ background:var(--paper); }
+  section:nth-of-type(even):not(#title){ background:var(--paper-deep); }
+
+  /* ---------- side progress dots ---------- */
+  #dots{
+    position:fixed;
+    right:12px;
+    top:50%;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    z-index:20;
+  }
+  #dots button{
+    width:5px; height:5px;
+    border-radius:50%;
+    border:none;
+    background:var(--line);
+    opacity:0.4;
+    padding:0;
+    cursor:pointer;
+    transition:opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+  }
+  #dots button.active{
+    opacity:1;
+    background:var(--sea);
+    transform:scale(1.6);
+  }
+
+  /* ---------- clock-hand progress ---------- */
+  #clock{
+    position:fixed;
+    left:50%;
+    bottom:16px;
+    transform:translateX(-50%);
+    z-index:20;
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:rgba(42,38,32,0.06);
+    backdrop-filter:blur(2px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #clock svg{ width:100%; height:100%; }
+  #clock circle.face{
+    fill:none;
+    stroke:var(--line);
+    stroke-width:1;
+    opacity:0.5;
+  }
+  #clock line.hand{
+    stroke:var(--rope);
+    stroke-width:1.6;
+    stroke-linecap:round;
+    transform-origin:19px 19px;
+    transition:transform 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  #clock circle.hub{ fill:var(--rope); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+    .tide, p.para{ opacity:1 !important; transform:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="scroller">
+
+  <section id="title">
+    <div class="place">台東百歲人瑞寫真集</div>
+    <h1 class="main-title">繼往開「萊」守排灣<br>流風餘「韻」永流傳</h1>
+    <div class="title-rule"></div>
+    <p class="subtitle">萊韻•耶勒滿</p>
+    <div class="swipe-hint">上滑閱讀<span class="chev"></span></div>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">適逢杜蘇瑞颱風登陸的前一天下午，陣陣涼風迎面而來，挾帶著瀰漫空中的溼氣，在在顯著風雨欲來。而金峰鄉正興村中，瀰漫的不只溼氣，更有閒適宜人的寧靜。在這彷若悠然物外的村莊中，居住著一位逾百歲的排灣族女頭目---萊韻•耶勒滿奶奶。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">萊韻•耶勒滿奶奶的住處座落於一斜坡邊的平台上，從家門往外看，門前最不容忽略的，是一棵生長得蒼翠蓬勃的榕樹，不僅遮蔽熾熱陽光，更是頭目的象徵。萊韻•耶勒滿奶奶的子民們，也如同這榕樹一般繁茂，在各地開枝散葉。不過，所有子民們的根，依舊深扎匯集於此，頭目所在之處即是家。這裡正如她的名「萊韻」，排灣族語中原義是各條河川匯集之處，更可引申為所有事的交會。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">萊韻•耶勒滿奶奶具有一半排灣，一半魯凱的血統，不過她所擔任的是長嗣繼承的排灣族頭目，而非長男繼嗣的魯凱族頭目。身為家中的長女，奶奶還有兩個妹妹和一個弟弟。在她成為頭目之前，是家中的大公主，而弟妹則需要服侍她。然而奶奶其實是很疼愛弟妹的，尤其對弟弟呵護有加，無論向她要求什麼，幾乎都會答應。甚至在成年後，只要弟弟生病，她就會每天去弟弟家中照顧他。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">生長在地位相當高的家庭中，萊韻•耶勒滿奶奶在日治時期擁有上學的機會，國小畢業後，還曾到嘉義學習護理。只不過因為害怕看到血，她讀到半途就回家了。然而經歷數年的教育，奶奶得以流利地使用日文，對話、閱讀、書寫都沒問題，這也成為日後與丈夫溝通的利器。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">在排灣族的習俗中，頭目之女是不能下嫁平民的，萊韻•耶勒滿奶奶的婚姻也不例外，奉父母之命嫁給了同樣具有頭目身分的丈夫。夫妻原先都居住於山上，後因為國家政策，而將整個部落遷移下山。萊韻•耶勒滿奶奶的丈夫是來自屏東阿里的魯凱族頭目，具有相當高的學歷，在日治時期曾當過老師，也擔任過村長、代表等職位。據奶奶的媳婦說，爺爺以前受訓時，都和奶奶以日文通信呢！爺爺和奶奶的感情甚篤，在兩老晚年，奶奶會騎著四輪的電動代步車，載爺爺一起上山，或是週日一起上教堂。兒女們總是戲稱，這臺電動車就宛如老人家的「國光號」，讓伉儷情深的爺爺奶奶得以四方遊歷。想像中，這是個多麼恬靜美好的畫面!然而，自從爺爺民國106年過世，而奶奶也在四年前於家門口跌倒，如今已無法再乘坐電動車。這臺電動車在採訪時，仍靜靜佇立在奶奶家門口，承受著逐漸佈滿的塵埃蛛網，令人感到些許悵惘。不過，它的存在或許也銘誌著爺爺奶奶往日的美好時光。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">在美滿的婚姻生活中，萊韻•耶勒滿奶奶與丈夫共同育有五個子女。老大、老二與老四是女兒，老三與老五則是兒子。排行第一的大女兒，在排灣習俗中也將成為頭目，因此奶奶給予她較多的關注與疼愛，而弟妹們就需要做較多的家務及工作，如同奶奶自己的弟妹一般。在兒子勒馬力至眼中，萊韻•耶勒滿奶奶對孩子們採取的是較為放任式的教養，對他們並無過多管束，不過兒女們各自的發展都相當好，並且下一代的孫子女們也各個都就讀於各地名校。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">對排灣族而言，小米收穫祭是一個非常重要的歲時祭儀，而頭目更是其中至關重要的角色。在收穫祭來臨前，萊韻•耶勒滿需要釀造小米酒，這是專屬頭目的職責。她每年會釀三甕酒，一甕用於祭祀上天，一甕用來祭祀祖靈，而另外一甕則分發給參與祭祀的子民及來賓。小米收穫祭多舉行於八月，具體時間會由部落中的長老告知各地子民，並且由長老負責分派祭典前的準備任務，像是包麻糬、獵山豬等等，而頭目這時在一旁靜觀子民即可。祭天與祭祖，都需要在頭目的家中進行。通常祭典會持續兩天，第一天會殺豬、包吉拿富(傳統食物，類似於漢人的粽子)，以及烤些山產。第二天則會唱歌、跳舞，尤其頭目要負責唱古謠來感謝祖靈。具有階級性意義的煙草，也會在祭典間，由身為頭目的萊韻•耶勒滿分發給子民。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">在萊韻•耶勒滿的生命中，煙可謂不可或缺的一部分。奶奶最厲害的手藝就是處理菸草，此製作工序極為廢時，從種植開始，而後悉心照料植物直至收成。收成後，需要先將菸草風乾，待風乾完成就可以進行最後的步驟--發酵，好讓燃煙時具有濃郁的嗅香。抽煙斗是萊韻最熱愛的事，而她的子民也深知這點，會做菸斗給她。如果菸斗不見，全家就得動員幫她找，菸斗對她的重要性不言而喻。近年來，由於健康因素，家人不讓奶奶繼續抽菸，她還曾為此發過脾氣!</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">身為部落頭目，萊韻•耶勒滿可以不用做家務事，因會有兩個長老協助。在身體還健朗時，平日萊韻•耶勒滿會去幫忙拔草，整理釋迦園，也有在山上種小米、洛神花與一些雜糧作物。對子民而言，頭目居住的地方就是「家裡」。獵人會將部分獵物納貢給頭目，而如果有人送東西，子民也可以到頭目的家中，自行烹煮食物來食用。萊韻•耶勒滿的兒子回憶道，除了有人烹煮食物給頭目以外，家中小孩也都是部落子民幫忙帶的。而媳婦達拉巴揚也記得，萊韻•耶勒滿總是叮囑家人，家裡的門不能關，才不會讓子民因為不敢開而無法進來。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para" style="padding-bottom:22vh;">萊韻•耶勒滿的兒子開玩笑的說，媽媽的衣食、生活都很簡單，「因為什麼都不會做」。不過，在承擔頭目責任的同時，享有一定的權利也是合理的。萊韻•耶勒滿奶奶的生命故事，有著幸福的段落，亦有著責任的篇章。她就如同家門前的那棵榕樹，深深扎根於土地，支撐起一片繁茂的風景。</p>
+  </section>
+
+
+</div>
+
+<div id="dots"></div>
+
+<div id="clock" aria-hidden="true">
+  <svg viewBox="0 0 38 38">
+    <circle class="face" cx="19" cy="19" r="15"></circle>
+    <line class="hand" id="hand" x1="19" y1="19" x2="19" y2="7"></line>
+    <circle class="hub" cx="19" cy="19" r="1.6"></circle>
+  </svg>
+</div>
+
+<script>
+  const sections = Array.from(document.querySelectorAll('section'));
+  const dotsContainer = document.getElementById('dots');
+  const hand = document.getElementById('hand');
+  const scroller = document.getElementById('scroller');
+
+  sections.forEach((sec, i) => {
+    const b = document.createElement('button');
+    b.setAttribute('aria-label', i === 0 ? '開始' : ('第 ' + i + ' 段'));
+    b.addEventListener('click', () => sec.scrollIntoView({behavior:'smooth'}));
+    dotsContainer.appendChild(b);
+  });
+  const dotEls = Array.from(dotsContainer.children);
+
+  function setActive(index){
+    dotEls.forEach((d,i) => d.classList.toggle('active', i === index));
+    const deg = (index / (sections.length - 1)) * 360;
+    hand.style.transform = 'rotate(' + deg + 'deg)';
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting && entry.intersectionRatio > 0.55){
+        entry.target.classList.add('in-view');
+        const idx = sections.indexOf(entry.target);
+        setActive(idx);
+      }
+    });
+  }, { root: scroller, threshold: [0.55] });
+
+  sections.forEach(sec => io.observe(sec));
+  setActive(0);
+</script>
+
+</body>
+</html>
