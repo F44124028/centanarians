@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>從富國島走出的強健生命</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700;900&family=Noto+Sans+TC:wght@300;400;500&display=swap');
+
+  :root{
+    --paper:      #E9E1CC;
+    --paper-deep: #DED2AF;
+    --ink:        #2A2620;
+    --ink-soft:   #5A5344;
+    --sea:        #3E5C56;
+    --sea-deep:   #2C433E;
+    --rope:       #A0703F;
+    --line:       #8C8264;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html,body{
+    height:100%;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Serif TC', serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body{ overflow:hidden; }
+
+  #scroller{
+    height:100dvh;
+    height:100vh;
+    overflow-y:scroll;
+    scroll-snap-type:y mandatory;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  #scroller::-webkit-scrollbar{ display:none; }
+
+  section{
+    position:relative;
+    min-height:100dvh;
+    min-height:100vh;
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+    display:flex;
+    flex-direction:column;
+    padding:0 26px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  section::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(ellipse at 15% 8%, rgba(160,112,63,0.07), transparent 55%),
+      radial-gradient(ellipse at 85% 95%, rgba(62,92,86,0.09), transparent 55%);
+    pointer-events:none;
+    z-index:0;
+  }
+  section > *{ position:relative; z-index:1; }
+
+  /* ---------- title page ---------- */
+  #title{
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    background:var(--sea-deep);
+    color:var(--paper);
+  }
+  #title::before{ background:none; }
+
+  .place{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    font-size:12px;
+    letter-spacing:0.28em;
+    color:rgba(233,225,204,0.65);
+    margin-bottom:28px;
+  }
+
+  .main-title{
+    font-weight:900;
+    font-size:clamp(21px, 6.6vw, 34px);
+    line-height:1.55;
+    letter-spacing:0.03em;
+    white-space:nowrap;
+  }
+
+  .title-rule{
+    width:36px;
+    height:1px;
+    background:var(--rope);
+    margin:30px auto;
+  }
+
+  .subtitle{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    font-size:15px;
+    color:rgba(233,225,204,0.8);
+    letter-spacing:0.15em;
+  }
+
+  .swipe-hint{
+    margin-top:70px;
+    font-family:'Noto Sans TC', sans-serif;
+    font-size:12px;
+    font-weight:300;
+    letter-spacing:0.3em;
+    color:rgba(233,225,204,0.55);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+  .chev{
+    width:9px; height:9px;
+    border-right:1px solid rgba(233,225,204,0.55);
+    border-bottom:1px solid rgba(233,225,204,0.55);
+    transform:rotate(45deg);
+    animation:bob 2.2s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{ transform:rotate(45deg) translate(0,0); opacity:0.4; }
+    50%{ transform:rotate(45deg) translate(4px,4px); opacity:0.9; }
+  }
+
+  /* ---------- content pages ---------- */
+  .tide{
+    width:100%;
+    max-width:600px;
+    height:10px;
+    margin-top:16vh;
+    margin-bottom:20px;
+    opacity:0;
+    transition:opacity 0.8s ease 0.1s;
+  }
+  .tide path{ stroke:var(--line); stroke-width:1; fill:none; opacity:0.55; }
+
+  p.para{
+    max-width:600px;
+    font-size:clamp(16.5px, 4.6vw, 19px);
+    line-height:2.05;
+    letter-spacing:0.045em;
+    color:var(--ink);
+    text-align:justify;
+    padding-bottom:16vh;
+    opacity:0;
+    transform:translateY(14px);
+    transition:opacity 0.85s ease, transform 0.85s ease;
+  }
+
+  section.in-view .tide,
+  section.in-view p.para{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  section:nth-of-type(odd):not(#title){ background:var(--paper); }
+  section:nth-of-type(even):not(#title){ background:var(--paper-deep); }
+
+  /* ---------- side progress dots ---------- */
+  #dots{
+    position:fixed;
+    right:12px;
+    top:50%;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    z-index:20;
+  }
+  #dots button{
+    width:5px; height:5px;
+    border-radius:50%;
+    border:none;
+    background:var(--line);
+    opacity:0.4;
+    padding:0;
+    cursor:pointer;
+    transition:opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+  }
+  #dots button.active{
+    opacity:1;
+    background:var(--sea);
+    transform:scale(1.6);
+  }
+
+  /* ---------- clock-hand progress ---------- */
+  #clock{
+    position:fixed;
+    left:50%;
+    bottom:16px;
+    transform:translateX(-50%);
+    z-index:20;
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:rgba(42,38,32,0.06);
+    backdrop-filter:blur(2px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #clock svg{ width:100%; height:100%; }
+  #clock circle.face{
+    fill:none;
+    stroke:var(--line);
+    stroke-width:1;
+    opacity:0.5;
+  }
+  #clock line.hand{
+    stroke:var(--rope);
+    stroke-width:1.6;
+    stroke-linecap:round;
+    transform-origin:19px 19px;
+    transition:transform 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  #clock circle.hub{ fill:var(--rope); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+    .tide, p.para{ opacity:1 !important; transform:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="scroller">
+
+  <section id="title">
+    <div class="place">台東百歲人瑞寫真集</div>
+    <h1 class="main-title">從富國島走出的強健生命</h1>
+    <div class="title-rule"></div>
+    <p class="subtitle">歐陽中</p>
+    <div class="swipe-hint">上滑閱讀<span class="chev"></span></div>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">從台東市區向卑南一路前進，儘管太陽始終高懸，但隨著路旁風景漸增，心情便涼爽了起來。進入了卑南鄉東興村，此時導航已無法提供確切方向。恰巧看到了村中的教堂，我便向門口的年輕原住民女子詢問，沒料到她不僅知道地址，還認識這位百歲爺爺。順著她的指引，我沿著一條小路緩緩向上，不一會兒就到了半山腰。抵達目的地時，房門是敞開的。我站在門口向內探望，只見歐陽中爺爺正專注地看著電視，他的女兒則在一旁小憩。這裡是個原住民部落，我想，即將採訪的這位爺爺大概也是原住民長者吧。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">輕聲喚醒爺爺的女兒後，我們三人來到室外，在門前長椅上坐著，宛如話家常一般。生於民國10年的爺爺精神抖擻，完全不似已逾百歲，唯一受歲月影響的只有重聽。因此，女兒歐陽華準備了紙筆，讓我將問題寫於紙上。爺爺看了問題，便能自行中氣十足地回答。深入了解之下，才知道爺爺並不是我所預設的原住民，而是一位來自湖南省寧遠縣的榮民。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">爺爺在年輕時加入了富台部隊。那是一支命運多舛的隊伍，在動盪的年代裡顛沛流離。國共內戰末期，由將軍黃杰率領的部隊由廣西進入越南，欲借道前往台灣。當時的越南是法國的殖民地，駐越法軍以保護之名，迫使部隊在富國島停留。原本應該是短暫的中轉，卻變成了長達四年的囚禁。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">在富國島，部隊被法國要求繳械後，只能赤手空拳地在異鄉求生。他們克難地用草蓋房子，自己動手做槍、做桌子，完全沒有任何工具。儘管法國有發米以及木薯，但不足以讓所有人溫飽，於是他們便自己挖青菜與海草來充飢。他們的穿著永遠是短褲，那是當地華僑用麵粉袋製作給他們的。談起當時的困苦情狀，爺爺控制不住情緒，淚水奔湧而出。他的女兒立即起身緊緊抱住他，讓父親依偎在自己身上。在一旁看著這位經歷過無數磨難的長者如此悲痛，我的眼眶也不禁紅了。難以想像爺爺究竟經歷了多麼艱難的歲月，以至於時至今日，回憶起來仍然痛徹心扉。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">即便在如此惡劣的環境中，軍紀依然嚴明。如今，爺爺依舊記得軍令，他挺直了腰板大聲喊道：「東方發白，天亮起床，整理內務，打掃營房！」我不禁驚訝於爺爺的記憶力，也感受到這段日子的一切是深深刻印在爺爺的骨子裡。更另人敬佩的是，爺爺在這樣的環境下還努力學習識字。當時沒有紙筆，他們就用樹枝一筆一劃地在地上練習寫字，這份求知若渴的精神令人動容。歷時四年多，部隊長官黃杰才成功透過富國島華僑的幫忙，化裝成漁民，開船偷渡到台灣，讓政府知道還有部隊在越南，部隊這才得以返台。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">返台後，爺爺的生活並未就此平順。富台部隊重新整編，他被編入海軍陸戰隊。爾後，民國51年，他被派往台東開發隊，次年便退役並結婚。在台東時，爺爺種植了各種作物，包括地瓜、玉米、芋頭、花生、小米，以及種木薯當豬飼料。爺爺日復一日地揹著沉重的農作物下山買賣，然而，即便如此辛勞，收入仍然微薄，一年只有上千元。為了改善生計，經朋友介紹，爺爺曾前往台中工作一年。之後又輾轉到彰化一家工廠，負責鑰匙包裝工作，直到工廠倒閉。約莫民國78年，爺爺回到台東，重拾耕作，開啟自給自足的生活，多餘的農作物還可分送給街坊鄰居。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">談到家庭，爺爺的人生經歷了兩段婚姻。在退伍軍人朋友的介紹下，爺爺的第一任妻子是排灣族，兩人一起養育五個孩子。然而，第一任妻子不幸於民國88年過世，因此隔年爺爺與現任的魯凱族妻子結縭，互相扶持至今。回憶起養育孩子的歲月，爺爺不禁感慨。那時家境貧困，沒有買奶粉的錢，孩子都喝母乳，讓爺爺總覺得孩子營養不良。然而，當爺爺在採訪中自嘲說孩子們「投胎這個窮爸爸受苦」時，女兒卻堅定地表示不會這麼想，因為爸爸已經為他們付出很多了。事實上，在妻女眼中，爺爺是個好丈夫、好父親。他性格溫和，從不打罵孩子，會做家事也會煮飯。平日裡，他喜歡隨興烹飪家常菜，雖簡單卻不馬虎，總在每樣菜加入對身體有益的枸杞。就在採訪前一天，他還親手做了蔥油餅。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">受到妻子的影響，原先是無神論者的爺爺開始接觸信仰。現任妻子帶他去日託中心和教會，漸漸地，每週日去禮拜成為了他們共同的習慣。在日託中心和教會裡，爺爺學會了許多聖歌，這些歌曲成為他生活中的一大樂趣。在採訪現場，爺爺興致盎然地唱起了「我們是一家人」，用中氣十足的歌聲展現了驚人的活力。除了信仰，爺爺也因為與原住民妻子相處，學會了一些原住民語言，偶爾聊天或開玩笑時會用上。此外，他也會幾句台語，像是「無代誌啦」、「無要緊啦」，在日常交談中靈活運用。爺爺的開放態度，拉近了與周圍人們的距離，讓他保持著與世界溝通的能力和樂趣。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">退休後的爺爺並沒有閒下來，反而更加積極地參與社區活動。當地長照日託中心剛成立時，他就成為了常客，幾乎每天都去。在那裡，他不僅運動、唱歌、跳舞，還參與各種手工藝活動。除此之外，每年春節他也會在文建站親手寫春聯和對聯，雖然他謙虛地說自己「寫不太好」，但僅只有在越南學過寫字的他依然令人敬佩。更令人驚訝的是，爺爺的身體狀況絲毫不像個百歲老人。他自豪地展示著自己的健康狀況，說道：「我很有力量，這是我的健康情形，不許亂開玩笑的。」確實，爺爺的拳頭有力，身體柔韌度也驚人。在活動中心的各項比賽中，不論是臂力、腰力還是坐力，他總是拿第一名。特別是深蹲動作，爺爺可以做到膝蓋完全平行，連年輕的老師都望塵莫及。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">爺爺的日常生活充滿了運動，他堅持每天散步，繞村莊一大圈，並且每天都會在活動中心鍛煉半小時，推車半小時，總活動時間超過十個小時。他甚至發明了「睡覺運動」，在床上躺著做操。這些獨特的運動方式讓他保持了挺拔的身姿，不會彎腰駝背，還能靈活地扭腰、開肩。談到自己的健康秘訣，爺爺自豪地說：「沒師傅教我，沒看書，都是自己做的。」爺爺不僅身體硬朗，心智也十分清晰。他每年都會去投票，充分行使公民權利。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para" style="padding-bottom:22vh;">採訪接近尾聲時，爺爺突然站起身來，拿起一旁的籃球，開始熟練地運球。他的動作流暢自如，讓我這個年輕人都自愧不如。看著這位百歲老人充滿活力的模樣，我不禁為他的生命力所折服。儘管曾經歷過富國島的艱辛歲月，爺爺依然保持著樂觀積極的態度。這份堅韌不拔的精神，不僅幫助他度過了人生的低谷，更讓他在百歲高齡依然保持著強健的體魄和心智。當我準備離開時，爺爺雙手揮舞、身體搖擺，以他獨特的方式歡送我。這一刻，我不禁感慨：長壽不僅是活得久，更是活得精彩。歐陽爺爺的故事，無疑是對生命最好的詮釋和讚頌。</p>
+  </section>
+
+</div>
+
+<div id="dots"></div>
+
+<div id="clock" aria-hidden="true">
+  <svg viewBox="0 0 38 38">
+    <circle class="face" cx="19" cy="19" r="15"></circle>
+    <line class="hand" id="hand" x1="19" y1="19" x2="19" y2="7"></line>
+    <circle class="hub" cx="19" cy="19" r="1.6"></circle>
+  </svg>
+</div>
+
+<script>
+  const sections = Array.from(document.querySelectorAll('section'));
+  const dotsContainer = document.getElementById('dots');
+  const hand = document.getElementById('hand');
+  const scroller = document.getElementById('scroller');
+
+  sections.forEach((sec, i) => {
+    const b = document.createElement('button');
+    b.setAttribute('aria-label', i === 0 ? '開始' : ('第 ' + i + ' 段'));
+    b.addEventListener('click', () => sec.scrollIntoView({behavior:'smooth'}));
+    dotsContainer.appendChild(b);
+  });
+  const dotEls = Array.from(dotsContainer.children);
+
+  function setActive(index){
+    dotEls.forEach((d,i) => d.classList.toggle('active', i === index));
+    const deg = (index / (sections.length - 1)) * 360;
+    hand.style.transform = 'rotate(' + deg + 'deg)';
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting && entry.intersectionRatio > 0.55){
+        entry.target.classList.add('in-view');
+        const idx = sections.indexOf(entry.target);
+        setActive(idx);
+      }
+    });
+  }, { root: scroller, threshold: [0.55] });
+
+  sections.forEach(sec => io.observe(sec));
+  setActive(0);
+</script>
+
+</body>
+</html>

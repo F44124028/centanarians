@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>在歷史洪流中發酵的生命滋味</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700;900&family=Noto+Sans+TC:wght@300;400;500&display=swap');
+
+  :root{
+    --paper:      #E9E1CC;
+    --paper-deep: #DED2AF;
+    --ink:        #2A2620;
+    --ink-soft:   #5A5344;
+    --sea:        #3E5C56;
+    --sea-deep:   #2C433E;
+    --rope:       #A0703F;
+    --line:       #8C8264;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html,body{
+    height:100%;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Serif TC', serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body{ overflow:hidden; }
+
+  #scroller{
+    height:100dvh;
+    height:100vh;
+    overflow-y:scroll;
+    scroll-snap-type:y mandatory;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  #scroller::-webkit-scrollbar{ display:none; }
+
+  section{
+    position:relative;
+    min-height:100dvh;
+    min-height:100vh;
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+    display:flex;
+    flex-direction:column;
+    padding:0 26px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  section::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(ellipse at 15% 8%, rgba(160,112,63,0.07), transparent 55%),
+      radial-gradient(ellipse at 85% 95%, rgba(62,92,86,0.09), transparent 55%);
+    pointer-events:none;
+    z-index:0;
+  }
+  section > *{ position:relative; z-index:0; }
+  section > *{ position:relative; z-index:1; }
+
+  /* ---------- title page ---------- */
+  #title{
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    background:var(--sea-deep);
+    color:var(--paper);
+  }
+  #title::before{ background:none; }
+
+  .place{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    font-size:12px;
+    letter-spacing:0.28em;
+    color:rgba(233,225,204,0.65);
+    margin-bottom:28px;
+  }
+
+  .main-title{
+    font-weight:900;
+    font-size:clamp(19px, 5.9vw, 30px);
+    line-height:1.6;
+    letter-spacing:0.02em;
+    white-space:nowrap;
+  }
+
+  .title-rule{
+    width:36px;
+    height:1px;
+    background:var(--rope);
+    margin:30px auto;
+  }
+
+  .subtitle{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    font-size:15px;
+    color:rgba(233,225,204,0.8);
+    letter-spacing:0.15em;
+  }
+
+  .swipe-hint{
+    margin-top:70px;
+    font-family:'Noto Sans TC', sans-serif;
+    font-size:12px;
+    font-weight:300;
+    letter-spacing:0.3em;
+    color:rgba(233,225,204,0.55);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+  .chev{
+    width:9px; height:9px;
+    border-right:1px solid rgba(233,225,204,0.55);
+    border-bottom:1px solid rgba(233,225,204,0.55);
+    transform:rotate(45deg);
+    animation:bob 2.2s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{ transform:rotate(45deg) translate(0,0); opacity:0.4; }
+    50%{ transform:rotate(45deg) translate(4px,4px); opacity:0.9; }
+  }
+
+  /* ---------- content pages ---------- */
+  .tide{
+    width:100%;
+    max-width:600px;
+    height:10px;
+    margin-top:16vh;
+    margin-bottom:20px;
+    opacity:0;
+    transition:opacity 0.8s ease 0.1s;
+  }
+  .tide path{ stroke:var(--line); stroke-width:1; fill:none; opacity:0.55; }
+
+  p.para{
+    max-width:600px;
+    font-size:clamp(16.5px, 4.6vw, 19px);
+    line-height:2.05;
+    letter-spacing:0.045em;
+    color:var(--ink);
+    text-align:justify;
+    padding-bottom:16vh;
+    opacity:0;
+    transform:translateY(14px);
+    transition:opacity 0.85s ease, transform 0.85s ease;
+  }
+
+  section.in-view .tide,
+  section.in-view p.para{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  section:nth-of-type(odd):not(#title){ background:var(--paper); }
+  section:nth-of-type(even):not(#title){ background:var(--paper-deep); }
+
+  /* ---------- side progress dots ---------- */
+  #dots{
+    position:fixed;
+    right:12px;
+    top:50%;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    z-index:20;
+  }
+  #dots button{
+    width:5px; height:5px;
+    border-radius:50%;
+    border:none;
+    background:var(--line);
+    opacity:0.4;
+    padding:0;
+    cursor:pointer;
+    transition:opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+  }
+  #dots button.active{
+    opacity:1;
+    background:var(--sea);
+    transform:scale(1.6);
+  }
+
+  /* ---------- clock-hand progress ---------- */
+  #clock{
+    position:fixed;
+    left:50%;
+    bottom:16px;
+    transform:translateX(-50%);
+    z-index:20;
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:rgba(42,38,32,0.06);
+    backdrop-filter:blur(2px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #clock svg{ width:100%; height:100%; }
+  #clock circle.face{
+    fill:none;
+    stroke:var(--line);
+    stroke-width:1;
+    opacity:0.5;
+  }
+  #clock line.hand{
+    stroke:var(--rope);
+    stroke-width:1.6;
+    stroke-linecap:round;
+    transform-origin:19px 19px;
+    transition:transform 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  #clock circle.hub{ fill:var(--rope); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+    .tide, p.para{ opacity:1 !important; transform:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="scroller">
+
+  <section id="title">
+    <div class="place">台東百歲人瑞寫真集</div>
+    <h1 class="main-title">在歷史洪流中發酵的生命滋味</h1>
+    <div class="title-rule"></div>
+    <p class="subtitle">曹玉洲</p>
+    <div class="swipe-hint">上滑閱讀<span class="chev"></span></div>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">台東的夏日，熾熱的陽光毫不留情地灑在狹窄的巷弄中。我拭去額頭上的汗水，踏入了藏在市區小巷裡的曹家宅邸。屋內，屆滿百歲高齡的曹爺爺，安坐在一張單人椅上。家人拿了張塑膠椅，讓我坐在他身旁，示意我提高音量，好讓重聽的他聽清我的話。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">爺爺和許多人一樣，在1940那個動盪的年代，從東北瀋陽一路逃離來台灣。然而爺爺又比許多人還幸運，和父母及兩個哥哥一起離開家鄉，逃難途中一路有家人相伴。曹家在瀋陽是地主，逃離東北並非易事。第一次離家時，就慘遭共產黨打劫，只好回到家中，又隔了幾個月才順利逃出。在東北淪陷前，一家十二口攜帶了所有的積蓄及糧食，先後來到了北平(現北京)、上海。隨著各個城市的淪陷，一家人也離東北老家越來越遠。最後，全家幸運的買到船票，成功坐上商船，於台中上岸。經歷了超過一年的逃難，爺爺一家沿途散盡家財，來到台灣後已身無分文。當時的東北因日本人以華治華，讓爺爺一家有機會認識住在台東的台灣人，而促成了爺爺舉家至台東落腳。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">初抵台東時，曹家一無所有，只能依靠勞力維生。一家人先在豐里住下，開始種植稻作、花生和地瓜。不久後，曹家搬到了康樂，在那裡有人提供了一塊地給他們。爺爺親手搭建了一座木造房屋，雖然不甚結實，卻也讓一家人有了棲身之所。康樂的地裡滿是石頭，種植困難重重，爺爺卻毫不氣餒，每日白天辛勤耕作，夜晚就撿拾石頭、開墾荒地。後來，爺爺更買了一塊廢棄的舊機場跑道，決心將其改造成良田。儘管需要大量整治工作，但經過爺爺不懈的努力，這片跑道最終成為了可耕種的農田。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">隨著時間推移，爺爺在台東的生活逐漸穩定下來。爺爺首先在台東師專任職了多年，後由校長延纜至台東商校，擔任總務主任。在台東商校，爺爺成為了建設工作的先鋒。台東商校最初的校舍，幾乎都是由爺爺經手打造而成的。此外，由於學校人手不足，爺爺幾乎事事親力親為，從校舍維修到行政事務，他都盡心盡力。其中，校方多次提議讓他擔任教師，甚至校長，但爺爺始終婉拒。在大陸曾就讀到省二工的他，認為自己沒有受過正規的教育專業培訓，不應該教導學生。這種正直和謙遜的態度，更加贏得了同事們的尊重。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">在台東師專工作的期間，為爺爺的人生帶來了重要的轉折。生性和善，待人友好的爺爺，和校內的老師及工友們都相處得很融洽。通過一位護士小姐的介紹，爺爺認識了彼時在教務處當工友的妻子——曹賴和妹奶奶。當時社會上對「外省人」有所顧慮，擔憂外省人會帶走自家女兒。所幸岳母很開明，認為「本省人也有好有壞」，並不反對女兒和曹爺爺的婚事。兩人認識了數年後才結婚，這段同事相處的時光讓他們更加了解彼此。爺爺不僅對妻子好，對岳母也是關懷備至，奶奶更提到，自己的媽媽曾親口讚許爺爺「比三個兒子還好」。婚後，爺爺繼續在學校工作，而奶奶則在家中經營布行「和昌家飾服飾」。每當店裡有訂單時，爺爺若剛好有空，就會從學校回來家中幫忙寫條子，協助奶奶管理訂單。這段婚姻不僅是兩人的結合，更成為了他們共同打拼的開端。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">爺爺從台東商校退休後，並未就此閒下來，反而全心協助奶奶經營布行。每天清晨五點，爺爺會起床步行到鯉魚山做健康操，八點多回來後，便幫忙開店，直到晚上收店才休息。在店裡，爺爺主要負責協助管理和定價，但也有一手捲布的功夫。夫妻倆還發明了一套獨特的定價系統，只有兩人能熟練運用，連兒子媳婦也只是略懂。媳婦回憶到，爺爺用國字的部件來代表數字，有固定的字對應一到十。在貨物的標籤上，上方寫售價，下方則標註成本。這種巧妙的方法讓他們無須翻查帳本，就能迅速知道商品的成本和售價。這套系統提升了夫妻倆做生意的效率，進而贏得顧客的肯定和讚賞。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">儘管在台灣的事業和生活已經安定下來，爺爺心中始終惦念著故鄉。兩岸開放探親後，爺爺共回去了三次。開放的第一年，他在對岸待了將近三個月，尋找因文革期間被迫分散各地的堂兄弟。儘管家鄉已面目全非，所幸堂兄弟們都還健在，爺爺甚至和他們一起出差去農場。第二次回鄉時，爺爺特地準備了許多禮物帶給家人，第三次則是帶著奶奶一同回去。這次，爺爺特地去了祖先的墳地，還給堂兄弟一些資金以修繕家族牌坊。除了爺爺有回鄉，他的兩位姐姐也曾來台灣探親，親情不因分隔兩地而斷，直到兩三年前，每年過年彼此都還會通電話。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">爺爺對家族的重視不僅體現在探親之旅中，更深植根於日常生活。每到除夕夜，會在家門口擺放水果，邀請祖先回來團圓。午夜時，總要特地為吃素的曾祖父準備一個素餃。此外，曹家也依然堅守著東北的傳統。在那個沒有冰箱的年代，酷寒的東北冬天裡，酸菜成了保存蔬菜的唯一方法。採訪當日問起爺爺，這酸菜的作法為何？他緩緩地答道：在過年前做，白菜用水燙過後加鹽巴，放一兩個月直到過年，就可以拿出來吃了。這項傳統如今已傳承至兒孫輩，子女們都會製作酸菜，過年時吃酸菜火鍋更是不可或缺的重要時刻。每逢歲末年初，曹家的廚房裡總是瀰漫著一股獨特的酸甜氣息，那是數代人共同的記憶。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para">談起爺爺的待人處事，媳婦李明桂描述他是個樂觀、自我負責且非常關心家庭的人。退休後，爺爺的兄長因病無法出門，他便每周去陪伴。孫女對於爺爺的自律印象深刻，即便天氣不佳，他也會設法堅持運動。爺爺對於後代的教養更是不遺餘力，不僅自製字卡來教導孫子國字注音，更在小時候就教他玩撿紅點，以及帶著他去打羽毛球。爺爺經常與家人分享過去的故事，但從不對晚輩的生活方式妄加評論。爺爺嘴上常掛著「沒有辦法」，但這並非哀怨，而是順其自然的人生態度，坦然接受人生的必經過程。爺爺的這些特質，使得他備受家人的尊敬與愛戴。</p>
+  </section>
+
+  <section>
+    <svg class="tide" viewBox="0 0 600 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5 T 540 5 T 570 5 T 600 5"/></svg>
+    <p class="para" style="padding-bottom:22vh;">一如東北老家的酸菜，曹爺爺經歷了被生活川燙的痛苦，被命運醃製的煎熬，在時代的激流中慢慢發酵。爺爺的堅韌與智慧，在時間的洗禮下益發醇厚而深遠，如同飽經淬鍊的酸菜，成為家庭中不可或缺的滋味。</p>
+  </section>
+
+</div>
+
+<div id="dots"></div>
+
+<div id="clock" aria-hidden="true">
+  <svg viewBox="0 0 38 38">
+    <circle class="face" cx="19" cy="19" r="15"></circle>
+    <line class="hand" id="hand" x1="19" y1="19" x2="19" y2="7"></line>
+    <circle class="hub" cx="19" cy="19" r="1.6"></circle>
+  </svg>
+</div>
+
+<script>
+  const sections = Array.from(document.querySelectorAll('section'));
+  const dotsContainer = document.getElementById('dots');
+  const hand = document.getElementById('hand');
+  const scroller = document.getElementById('scroller');
+
+  sections.forEach((sec, i) => {
+    const b = document.createElement('button');
+    b.setAttribute('aria-label', i === 0 ? '開始' : ('第 ' + i + ' 段'));
+    b.addEventListener('click', () => sec.scrollIntoView({behavior:'smooth'}));
+    dotsContainer.appendChild(b);
+  });
+  const dotEls = Array.from(dotsContainer.children);
+
+  function setActive(index){
+    dotEls.forEach((d,i) => d.classList.toggle('active', i === index));
+    const deg = (index / (sections.length - 1)) * 360;
+    hand.style.transform = 'rotate(' + deg + 'deg)';
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting && entry.intersectionRatio > 0.55){
+        entry.target.classList.add('in-view');
+        const idx = sections.indexOf(entry.target);
+        setActive(idx);
+      }
+    });
+  }, { root: scroller, threshold: [0.55] });
+
+  sections.forEach(sec => io.observe(sec));
+  setActive(0);
+</script>
+
+</body>
+</html>
