@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>台東百歲人瑞寫真集</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700;900&family=Noto+Sans+TC:wght@300;400;500&display=swap');
+
+  :root{
+    --paper:      #E9E1CC;
+    --paper-deep: #DED2AF;
+    --ink:        #2A2620;
+    --ink-soft:   #5A5344;
+    --sea:        #3E5C56;
+    --sea-deep:   #2C433E;
+    --rope:       #A0703F;
+    --line:       #8C8264;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html,body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Serif TC', serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100%;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    background:var(--sea-deep);
+    color:var(--paper);
+    padding:64px 26px 46px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  header::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(ellipse at 15% 10%, rgba(160,112,63,0.14), transparent 55%),
+      radial-gradient(ellipse at 85% 90%, rgba(62,92,86,0.2), transparent 55%);
+    pointer-events:none;
+  }
+  header > *{ position:relative; z-index:1; }
+
+  .eyebrow{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    font-size:12px;
+    letter-spacing:0.4em;
+    color:rgba(233,225,204,0.6);
+    margin-bottom:20px;
+  }
+
+  h1{
+    font-weight:900;
+    font-size:clamp(28px, 8vw, 40px);
+    line-height:1.5;
+    letter-spacing:0.06em;
+  }
+
+  .rule{
+    width:36px;
+    height:1px;
+    background:var(--rope);
+    margin:26px auto;
+  }
+
+  .author{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    font-size:13px;
+    letter-spacing:0.2em;
+    color:rgba(233,225,204,0.7);
+    margin-top:18px;
+  }
+
+  .tide{
+    width:100%;
+    max-width:520px;
+    height:10px;
+    margin:0 auto;
+  }
+  .tide path{ stroke:rgba(233,225,204,0.4); stroke-width:1; fill:none; }
+
+  /* ---------- list ---------- */
+  main{
+    max-width:640px;
+    margin:0 auto;
+    padding:34px 20px 80px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+
+  .count{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    font-size:13px;
+    letter-spacing:0.15em;
+    color:var(--ink-soft);
+    padding:0 4px 8px;
+  }
+
+  a.card{
+    display:block;
+    text-decoration:none;
+    color:inherit;
+    background:var(--paper-deep);
+    border-radius:2px;
+    padding:26px 24px;
+    position:relative;
+    border-left:2px solid var(--rope);
+    transition:transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  a.card:active{
+    transform:scale(0.98);
+  }
+  @media (hover:hover){
+    a.card:hover{
+      transform:translateX(4px);
+      box-shadow:-2px 0 0 var(--sea);
+    }
+  }
+
+  .card-top{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:14px;
+  }
+
+  .tag{
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:500;
+    font-size:11px;
+    letter-spacing:0.1em;
+    color:var(--paper);
+    background:var(--sea);
+    padding:3px 10px;
+    border-radius:20px;
+  }
+
+  .card-title{
+    font-weight:700;
+    font-size:clamp(19px, 5vw, 22px);
+    line-height:1.6;
+    letter-spacing:0.03em;
+    margin-bottom:10px;
+  }
+  .card-title .name{
+    color:var(--sea);
+  }
+  .card-title .sep{
+    color:var(--rope);
+    font-weight:400;
+  }
+
+  .card-blurb{
+    font-size:14.5px;
+    line-height:1.9;
+    color:var(--ink-soft);
+    letter-spacing:0.02em;
+  }
+
+  .arrow{
+    position:absolute;
+    right:22px;
+    bottom:22px;
+    width:16px; height:16px;
+    opacity:0.5;
+  }
+  .arrow svg{ width:100%; height:100%; }
+  .arrow path{ stroke:var(--ink); stroke-width:1.4; fill:none; }
+
+  footer{
+    text-align:center;
+    padding:0 20px 50px;
+    font-family:'Noto Sans TC', sans-serif;
+    font-size:12px;
+    letter-spacing:0.15em;
+    color:var(--ink-soft);
+    opacity:0.7;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">台 東 百 歲 人 瑞 寫 真 集</div>
+  <h1>萬千風貌<br>百年人生</h1>
+  <p class="author">文字｜許智禕</p>
+  <div class="rule"></div>
+  <svg class="tide" viewBox="0 0 520 10" preserveAspectRatio="none"><path d="M0 5 Q 15 0 30 5 T 60 5 T 90 5 T 120 5 T 150 5 T 180 5 T 210 5 T 240 5 T 270 5 T 300 5 T 330 5 T 360 5 T 390 5 T 420 5 T 450 5 T 480 5 T 510 5"/></svg>
+</header>
+
+<main>
+  <div class="count">共 2 篇</div>
+
+  <a class="card" href="不曾閒過的一雙手.html">
+    <div class="card-top">
+      <span class="tag">2026</span>
+    </div>
+    <div class="card-title"><span class="name">江乾</span><span class="sep"> · </span>不曾閒過的一雙手</div>
+    <p class="card-blurb">台東卑南，一位曾經在田裡、海邊討生活的男人，勞動從未真正停下，只是隨著年歲換了一副柔和的樣貌。</p>
+    <div class="arrow"><svg viewBox="0 0 16 16"><path d="M2 8h11M9 3l5 5-5 5"/></svg></div>
+  </a>
+
+  <a class="card" href="自己學會的日子.html">
+    <div class="card-top">
+      <span class="tag">2026</span>
+    </div>
+    <div class="card-title"><span class="name">陳素金</span><span class="sep"> · </span>自己學會的日子</div>
+    <p class="card-blurb">阿美族女子，跳遠、刺繡、跳舞樣樣無師自通，靠著一雙眼睛與一雙手，把百年的生活一天一天學會。</p>
+    <div class="arrow"><svg viewBox="0 0 16 16"><path d="M2 8h11M9 3l5 5-5 5"/></svg></div>
+  </a>
+
+</main>
+
+<footer>台東百歲人瑞寫真集</footer>
+
+</body>
+</html>
